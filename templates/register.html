@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='png/registericon.png') }}">
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <title>Registration</title>
+</head>
+<body>
+    <div class="wrapper">
+        <form method="POST" onSubmit="return checkPassword(this)">
+            <h2>Регистрация</h2>
+            <div class="input-field">
+                <input type="email" name="email" required>
+                <label>Введите свой email</label>
+            </div>
+            <div class="input-field">
+                <input type="password" name="password1" required>
+                <label>Введите пароль</label>
+            </div>
+            <div class="input-field">
+                <input type="password" name="password2" required>
+                <label>Повторите пароль</label>
+            </div>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <div class="register">
+            <p><a href="{{ url_for('login') }}">Есть аккаунт?</a> </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/addP.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/mas.js') }}">
+</head>
+<body>
+<div class="top_fon"></div>
+<div class="bot_fon"></div>
+<div class="container1">
+    <a href="{{ url_for('four') }}" class="AddP">Добавить Товар</a>
+    <a href="{{ url_for('second') }}" class="main">Главная</a>
+    <a href="{{ url_for('third') }}" class="LastOpp">Последние операции</a>
+    <a href="{{ url_for('index') }}" class="info">Информация о товаре</a>
+
+    <title>QR Code Scanner</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #file-input {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+        <input type="file" id="file-input" name="file" accept="image/*">
+        <button type="submit">Загрузить</button>
+    </form>
+    <div id="result"></div>
+</body>
+</html>
