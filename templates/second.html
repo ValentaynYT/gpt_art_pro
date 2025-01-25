@@ -3,6 +3,8 @@
 <head> 
     <meta charset="UTF-8">  
     <title>Стелажи</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/script.js" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pcss2.css') }}">
     <style>
         .products-list {
@@ -62,5 +64,21 @@
         {% endif %}
     </div>
 </div>
+<div id="controls">
+    <button id="add-shelf">Add Shelf</button>
+    <button id="remove-shelf">Remove Shelf</button>
+    <button id="rotate-shelf">Rotate Shelf</button>
+    <button id="remove-all-shelves">Remove All Shelves</button>
+</div>
+<div id="info-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="shelf-title"></h2>
+      <p id="shelf-info"></p>
+    </div>
+</div>
+<div id="shelves-container"></div>
+
+
 </body> 
 </html>
