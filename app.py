@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_sqlalchemy import SQLAlchemy  # Импортируем SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from models import db, User, Product
 from pyzbar.pyzbar import decode
 from PIL import Image
@@ -35,18 +35,15 @@ def upload():
     file = request.files['file']
     if file:
         try:
-            # Декодируем QR-код
             decoded_objects = decode(Image.open(file.stream))
             if decoded_objects:
                 qr_content = decoded_objects[0].data.decode('utf-8')
 
-                # Получаем текущего пользователя и добавляем товар в базу данных
                 user = User.query.filter_by(email=session['user_email']).first()
                 new_product = Product(qr_content=qr_content, user_id=user.id)
                 db.session.add(new_product)
                 db.session.commit()
 
-                # Сохраняем файл
                 file_path = os.path.join(UPLOAD_FOLDER, file.filename)
                 file.save(file_path)
 
@@ -60,7 +57,12 @@ def upload():
 
 @app.route("/second")
 def second():
-    products = Product.query.all()  
+    if 'user_email' not in session:
+        flash('Пожалуйста, войдите в систему.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(email=session['user_email']).first()
+    products = user.products
     return render_template("second.html", products=products)
 
 @app.route("/index")
@@ -106,7 +108,6 @@ def register():
         password1 = request.form['password1']
         password2 = request.form['password2']
 
-        # Проверка на существование пользователя с таким email
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash('Пользователь с таким email уже существует!', 'danger')
@@ -131,7 +132,46 @@ def logout():
     flash('Вы вышли из системы.', 'success')
     return redirect(url_for('login'))
 
-if __name__ == "__main__":  
+@app.route('/add_shelf', methods=['POST'])
+def add_shelf():
+    if 'user_email' not in session:
+        flash('Пожалуйста, войдите в систему.', 'danger')
+        return redirect(url_for('login'))
+
+    name = request.form['name']
+    info = request.form['info']
+    user = User.query.filter_by(email=session['user_email']).first()
+    new_shelf = Product(qr_content=name, user_id=user.id)
+    db.session.add(new_shelf)
+    db.session.commit()
+    return redirect(url_for('second'))
+
+@app.route('/remove_shelf/<int:shelf_id>', methods=['POST'])
+def remove_shelf(shelf_id):
+    if 'user_email' not in session:
+        flash('Пожалуйста, войдите в систему.', 'danger')
+        return redirect(url_for('login'))
+
+    shelf = Product.query.get_or_404(shelf_id)
+    if shelf.user_id == current_user.id:
+        db.session.delete(shelf)
+        db.session.commit()
+    return redirect(url_for('second'))
+
+@app.route('/remove_all_shelves', methods=['POST'])
+def remove_all_shelves():
+    if 'user_email' not in session:
+        flash('Пожалуйста, войдите в систему.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(email=session['user_email']).first()
+    shelves = Product.query.filter_by(user_id=user.id).all()
+    for shelf in shelves:
+        db.session.delete(shelf)
+    db.session.commit()
+    return redirect(url_for('second'))
+
+if __name__ == "__main__":
     with app.app_context():
-        db.create_all() 
+        db.create_all()
     app.run(debug=True)
