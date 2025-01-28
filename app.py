@@ -1,9 +1,8 @@
-import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from models import db, User, Product
 from pyzbar.pyzbar import decode
 from PIL import Image
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -153,7 +152,7 @@ def remove_shelf(shelf_id):
         return redirect(url_for('login'))
 
     shelf = Product.query.get_or_404(shelf_id)
-    if shelf.user_id == current_user.id:
+    if shelf.user_id == User.query.filter_by(email=session['user_email']).first().id:
         db.session.delete(shelf)
         db.session.commit()
     return redirect(url_for('second'))
@@ -170,6 +169,17 @@ def remove_all_shelves():
         db.session.delete(shelf)
     db.session.commit()
     return redirect(url_for('second'))
+
+@app.route('/all_shelves')
+def all_shelves():
+    if 'user_email' not in session:
+        flash('Пожалуйста, войдите в систему.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(email=session['user_email']).first()
+    shelves = Product.query.filter_by(user_id=user.id).all()
+    total_products = len(shelves)
+    return render_template('all_shelves.html', shelves=shelves, total_products=total_products)
 
 if __name__ == "__main__":
     with app.app_context():
