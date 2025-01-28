@@ -159,6 +159,7 @@
 <div class="top-menu">
     <a href="{{ url_for('four') }}" id="add-product">Добавить Товар</a>
     <a href="{{ url_for('second') }}" id="home">Главная</a>
+    <a href="{{ url_for('all_shelves') }}" id="all-shelves">Общий список товаров</a>
 </div>
 
 <div id="controls">
@@ -274,6 +275,11 @@
         document.getElementById('home').addEventListener('click', function(event) {
             event.preventDefault();
             window.location.href = "{{ url_for('second') }}";
+        });
+
+        document.getElementById('all-shelves').addEventListener('click', function(event) {
+            event.preventDefault();
+            window.location.href = "{{ url_for('all_shelves') }}";
         });
 
         document.getElementById('recent-operations').addEventListener('click', function(event) {
