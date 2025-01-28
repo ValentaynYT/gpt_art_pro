@@ -162,10 +162,10 @@
 </div>
 
 <div id="controls">
-    <button id="add-shelf">Add Shelf</button>
-    <button id="remove-shelf">Remove Shelf</button>
-    <button id="remove-all-shelves">Remove All Shelves</button>
-    <button id="save-shelves">Save Shelves</button>
+    <button id="add-shelf">Добавить полку</button>
+    <button id="remove-shelf">Удалить полку</button>
+    <button id="remove-all-shelves">Удалить все полки</button>
+    <button id="save-shelves">Сохранить</button>
 </div>
 
 <div id="shelves-container"></div>
@@ -196,12 +196,12 @@
         // Load shelves from localStorage
         const savedShelves = JSON.parse(localStorage.getItem('shelves')) || [];
         savedShelves.forEach(shelf => {
-            createShelf(shelf.name, shelf.info);
+            createShelf(shelf.name, shelf.info, shelf.products);
         });
         shelfCounter = savedShelves.length + 1;
 
         addShelfButton.addEventListener('click', () => {
-            createShelf(`Полка ${shelfCounter}`, `Это содержимое полки ${shelfCounter}.`);
+            createShelf(`Полка ${shelfCounter}`, `Это содержимое полки ${shelfCounter}.`, []);
             shelfCounter++;
         });
 
@@ -221,7 +221,8 @@
             shelvesContainer.querySelectorAll('.shelf').forEach(shelf => {
                 shelves.push({
                     name: shelf.textContent.trim(),
-                    info: shelf.querySelector('.info-button').dataset.info
+                    info: shelf.querySelector('.info-button').dataset.info,
+                    products: shelf.dataset.products ? JSON.parse(shelf.dataset.products) : []
                 });
             });
             localStorage.setItem('shelves', JSON.stringify(shelves));
@@ -238,9 +239,10 @@
             }
         });
 
-        function createShelf(name, info) {
+        function createShelf(name, info, products) {
             const shelf = document.createElement('div');
             shelf.className = 'shelf';
+            shelf.dataset.products = JSON.stringify(products);
             shelf.innerHTML = `
                 <span>${name}</span>
                 <button class="info-button">i</button>
@@ -250,7 +252,13 @@
             infoButton.dataset.info = info;
             infoButton.addEventListener('click', () => {
                 modalTitle.textContent = name;
-                modalInfo.textContent = info;
+                modalInfo.innerHTML = `
+                    <p>${info}</p>
+                    <h3>Товары на полке:</h3>
+                    <ul>
+                        ${products.map(product => `<li>${product.name} - ${product.price} руб.</li>`).join('')}
+                    </ul>
+                `;
                 modal.style.display = 'block';
             });
 
