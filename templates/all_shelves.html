@@ -77,11 +77,27 @@
             font-size: 1.2em;
             font-weight: bold;
         }
+
+        .add-product-button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background: #0078ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-product-button:hover {
+            background: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="top-menu">
-        <a href="{{ url_for('index') }}">Главная</a>
+        <a href="{{ url_for('four') }}" id="add-product">Добавить Товар</a>
+        <a href="{{ url_for('second') }}">Главная</a>
         <a href="{{ url_for('all_shelves') }}">Общий список товаров</a>
     </div>
 
@@ -108,6 +124,7 @@
                 {% endfor %}
             </tbody>
         </table>
+       
     </div>
 </body>
 </html>
