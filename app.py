@@ -80,6 +80,8 @@ def four():
 def gg():
     return render_template("gg.html")
 
+
+
 @app.route("/", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -121,7 +123,7 @@ def register():
         db.session.commit()
 
         flash('Регистрация успешна!', 'success')
-        return redirect(url_for('login'))
+        return render_template("gg.html")
 
     return render_template("register.html")
 
