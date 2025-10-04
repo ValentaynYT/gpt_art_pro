@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from pyzbar.pyzbar import decode
 from PIL import Image
 import os
+import cv2
+import numpy as np
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -25,6 +26,39 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+def decode_qr_code(image):
+    """
+    Замена pyzbar.decode для чтения QR-кодов с помощью OpenCV
+    """
+    try:
+        # Конвертируем PIL Image в OpenCV формат
+        if isinstance(image, Image.Image):
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+            img_np = np.array(image)
+            img_np = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+        else:
+            img_np = image
+        
+        # Детектируем QR код
+        detector = cv2.QRCodeDetector()
+        data, bbox, _ = detector.detectAndDecode(img_np)
+        
+        if data and bbox is not None:
+            # Создаем объект похожий на pyzbar для совместимости
+            class DecodedObject:
+                def __init__(self, data):
+                    self.data = data.encode('utf-8') if isinstance(data, str) else data
+                    self.type = 'QRCODE'
+            
+            return [DecodedObject(data)]
+        
+        return []
+        
+    except Exception as e:
+        print(f"QR decoding error: {e}")
+        return []
+
 @app.route("/upload", methods=['POST'])
 def upload():
     if 'user_email' not in session:
@@ -34,7 +68,8 @@ def upload():
     file = request.files['file']
     if file:
         try:
-            decoded_objects = decode(Image.open(file.stream))
+            # Используем нашу функцию вместо pyzbar
+            decoded_objects = decode_qr_code(Image.open(file.stream))
             if decoded_objects:
                 qr_content = decoded_objects[0].data.decode('utf-8')
 
@@ -79,8 +114,6 @@ def four():
 @app.route("/gg")
 def gg():
     return render_template("gg.html")
-
-
 
 @app.route("/", methods=['GET', 'POST'])
 def login():
