@@ -1,13 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from PIL import Image
 import os
-import base64
-import io
+import hashlib
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SECRET_KEY'] = 'key'
+app.config['SECRET_KEY'] = 'your-secret-key-here'
 
 db = SQLAlchemy(app)
 
@@ -26,23 +24,24 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-def decode_qr_code(image):
+def decode_qr_code(file):
     """
     Заглушка для QR-декодера
-    В продакшене можно заменить на реальный декодер
+    В реальном приложении можно подключить внешний API или библиотеку
     """
     try:
         # Для демонстрации - возвращаем тестовые данные
-        # В реальном приложении здесь будет OpenCV или другой декодер
+        filename = file.filename if file else "test"
         
         class DecodedObject:
             def __init__(self, data):
                 self.data = data.encode('utf-8')
                 self.type = 'QRCODE'
         
-        # Можно добавить логику для простых QR-кодов или тестовых данных
-        # Например, если файл имеет определенное имя или формат
-        return [DecodedObject("QR_Content_12345")]
+        # Генерируем тестовый контент на основе имени файла
+        filename_hash = hashlib.md5(filename.encode()).hexdigest()[:8]
+        test_content = f"QR_Content_{filename_hash}"
+        return [DecodedObject(test_content)]
         
     except Exception as e:
         print(f"QR decoding placeholder error: {e}")
@@ -55,10 +54,10 @@ def upload():
         return redirect(url_for('login'))
 
     file = request.files['file']
-    if file:
+    if file and file.filename:
         try:
             # Используем заглушку
-            decoded_objects = decode_qr_code(Image.open(file.stream))
+            decoded_objects = decode_qr_code(file)
             if decoded_objects:
                 qr_content = decoded_objects[0].data.decode('utf-8')
 
@@ -70,9 +69,9 @@ def upload():
                 file_path = os.path.join(UPLOAD_FOLDER, file.filename)
                 file.save(file_path)
 
-                flash('Товар успешно добавлен!', 'success')
+                flash('Товар успешно добавлен! (тестовый режим)', 'success')
             else:
-                flash('Не удалось декодировать QR-код. Используется тестовый режим.', 'warning')
+                flash('Не удалось декодировать QR-код.', 'warning')
                 
         except Exception as e:
             flash(f'Ошибка при обработке файла: {str(e)}', 'danger')
@@ -146,7 +145,7 @@ def register():
         db.session.commit()
 
         flash('Регистрация успешна!', 'success')
-        return render_template("gg.html")
+        return redirect(url_for('gg'))
 
     return render_template("register.html")
 
@@ -168,6 +167,7 @@ def add_shelf():
     new_shelf = Product(qr_content=name, user_id=user.id)
     db.session.add(new_shelf)
     db.session.commit()
+    flash('Полка успешно добавлена!', 'success')
     return redirect(url_for('second'))
 
 @app.route('/remove_shelf/<int:shelf_id>', methods=['POST'])
@@ -177,9 +177,13 @@ def remove_shelf(shelf_id):
         return redirect(url_for('login'))
 
     shelf = Product.query.get_or_404(shelf_id)
-    if shelf.user_id == User.query.filter_by(email=session['user_email']).first().id:
+    user = User.query.filter_by(email=session['user_email']).first()
+    
+    if shelf and shelf.user_id == user.id:
         db.session.delete(shelf)
         db.session.commit()
+        flash('Полка успешно удалена!', 'success')
+    
     return redirect(url_for('second'))
 
 @app.route('/remove_all_shelves', methods=['POST'])
@@ -190,9 +194,12 @@ def remove_all_shelves():
 
     user = User.query.filter_by(email=session['user_email']).first()
     shelves = Product.query.filter_by(user_id=user.id).all()
+    
     for shelf in shelves:
         db.session.delete(shelf)
+    
     db.session.commit()
+    flash('Все полки успешно удалены!', 'success')
     return redirect(url_for('second'))
 
 @app.route('/all_shelves')
@@ -206,10 +213,24 @@ def all_shelves():
     total_products = len(shelves)
     return render_template('all_shelves.html', shelves=shelves, total_products=total_products)
 
+@app.route('/test_qr')
+def test_qr():
+    """Тестовый маршрут для проверки QR функциональности"""
+    if 'user_email' not in session:
+        return redirect(url_for('login'))
+    
+    # Создаем тестовый продукт
+    user = User.query.filter_by(email=session['user_email']).first()
+    test_product = Product(qr_content="TEST_QR_CONTENT_123", user_id=user.id)
+    db.session.add(test_product)
+    db.session.commit()
+    
+    flash('Тестовый QR код добавлен!', 'success')
+    return redirect(url_for('second'))
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-    
