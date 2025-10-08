@@ -2,29 +2,48 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Инвентарная система</title>
+    <title>Инвентарная система - Сканер</title>
+    <!-- Библиотеки для сканирования -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #5d71f5;
+            --secondary: #4c51ff;
+            --success: #00ff88;
+            --error: #ff4444;
+            --dark-bg: #27282b;
+            --darker-bg: #161727;
+            --text: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
         body {
             margin: 0;
-            background: rgb(39,40,43);
-            color: white;
-            font-family: Arial, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            padding-top: 80px;
         }
 
+        /* Верхнее меню */
         .top-menu {
+            position: fixed;
+            top: 0;
+            width: 100%;
             display: flex;
             justify-content: center;
             gap: 20px;
-            width: 100%;
             padding: 30px;
             background-color: rgb(22, 23, 39);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            position: absolute;
-            top: 0;
+            z-index: 100;
         }
 
         .top-menu a {
@@ -38,37 +57,99 @@
             text-decoration: none;
             cursor: pointer;
             transition: transform 0.3s ease;
-        }
-
-        .upload-container {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            margin-top: 150px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            justify-content: center;
         }
 
+        .top-menu a:hover {
+            transform: scale(1.1);
+            background: linear-gradient(0deg, rgba(30,60,255,1) 34%, rgba(31,37,255,1) 78%);
+        }
+
+        /* Кнопка профиля */
+        .profile-button {
+            position: absolute;
+            right: 50px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px 15px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(93, 113, 245, 0.3);
+        }
+
+        .profile-button:hover {
+            background-color: rgba(93, 113, 245, 0.6);
+        }
+
+        .profile-modal {
+            display: none;
+            position: absolute;
+            right: 50px;
+            top: 75px;
+            background-color: white;
+            color: black;
+            width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .profile-modal a {
+            display: block;
+            padding: 10px 15px;
+            color: black;
+            text-decoration: none;
+            text-align: left;
+        }
+
+        .profile-modal a:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Основной контейнер */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        /* Сканер */
         .scanner-panel {
             display: none;
             flex-direction: column;
             align-items: center;
-            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
             padding: 20px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
-            width: 80%;
-            max-width: 600px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         #video-container {
             position: relative;
             width: 100%;
             padding-top: 56.25%;
-            overflow: hidden;
+            margin-bottom: 15px;
             border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--success);
+            background: #000;
         }
 
         #video {
@@ -78,6 +159,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            background: #000;
         }
 
         .scan-overlay {
@@ -86,58 +168,11 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 70%;
-            height: 70%;
-            border: 4px solid #00ff88;
-            border-radius: 10px;
+            height: 30%;
+            border: 3px solid var(--success);
+            border-radius: 5px;
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
             animation: pulse 2s infinite;
-        }
-
-        .product-info {
-            width: 100%;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #2a2b3d;
-            padding: 20px;
-            width: 80%;
-            max-width: 400px;
-            margin: 15% auto;
-            border-radius: 10px;
-            position: relative;
-        }
-
-        .shelf-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            background: #0078ff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
         }
 
         @keyframes pulse {
@@ -145,222 +180,495 @@
             50% { opacity: 0.4; }
             100% { opacity: 0.8; }
         }
+
+        /* Кнопки */
+        .buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            margin: 25px 0;
+        }
+
+        .qr-buttons, .barcode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .buttons-title {
+            text-align: center;
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: linear-gradient(var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 5px 0;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(var(--secondary), var(--primary));
+        }
+
+        /* Загрузка файлов */
+        .upload-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: block;
+            padding: 10px;
+            background: linear-gradient(var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        #result {
+            margin-top: 10px;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            min-height: 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--darker-bg);
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .shelf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .shelf-item button {
+            padding: 6px 12px;
+            background: var(--success);
+            color: black;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
+    <!-- Верхнее меню -->
     <div class="top-menu">
-        <a href="{{ url_for('four') }}">Добавить Товар</a>
-        <a href="{{ url_for('second') }}">Главная</a>
-        <a href="{{ url_for('all_shelves') }}">Общий список товаров</a>
-    </div>
-
-    <div class="upload-container">
-        <form id="upload-form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-            <input type="file" id="file-input" name="file" accept="image/*">
-            <button type="button" onclick="handleUpload()">Загрузить</button>
-        </form>
-        <div id="result"></div>
-        <div class="action-buttons">
-            <button onclick="startScanner('add')">Добавить товар</button>
-            <button onclick="startScanner('delete')">Удалить товар</button>
-            <button onclick="startScanner('issue')">Выдать товар</button>
+        <a href="{{ url_for('four') }}" id="add-product">Добавить Товар</a>
+        <a href="{{ url_for('second') }}" id="home">Главная</a>
+        <a href="{{ url_for('all_shelves') }}" id="all-shelves">Общий список товаров</a>
+        <button class="profile-button" id="profile-button">👤</button>
+        <div class="profile-modal" id="profile-modal">
+            <a href="{{ url_for('logout') }}">Выйти</a>
         </div>
     </div>
 
-    <div class="scanner-panel">
-        <div id="video-container">
-            <video id="video" playsinline></video>
-            <div class="scan-overlay"></div>
+    <!-- Основной контейнер -->
+    <div class="container">
+        <!-- Раздел загрузки файлов -->
+        <div class="upload-section">
+            <h3><i class="fas fa-upload"></i> Загрузка файлов</h3>
+            <form id="upload-form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+                <label for="file-input" class="file-label">
+                    <i class="fas fa-file-image"></i> Выберите файл
+                </label>
+                <input type="file" id="file-input" name="file" accept="image/*">
+                <button type="button" class="action-button" onclick="handleUpload()">
+                    <i class="fas fa-cloud-upload-alt"></i> Загрузить
+                </button>
+            </form>
+            <div id="result"></div>
         </div>
-        <div class="product-info" id="product-info"></div>
-        <button id="confirm-btn" style="display: none;" onclick="handleConfirm()">Подтвердить</button>
-    </div>
 
-    <!-- Модальное окно выбора полки -->
-    <div id="shelf-modal" class="modal">
-        <div class="modal-content">
-            <h3>Выберите полку:</h3>
-            <div id="shelf-list"></div>
-            <button onclick="closeModal()">Отмена</button>
+        <!-- Блоки кнопок для сканеров -->
+        <div class="buttons-group">
+            <!-- Кнопки для QR-сканера -->
+            <div class="qr-buttons">
+                <div class="buttons-title">
+                    <i class="fas fa-qrcode"></i> Сканер QR-кодов
+                </div>
+                <button class="action-button" onclick="startScanner('add', 'qr')">
+                    <i class="fas fa-plus-circle"></i> Добавить товар
+                </button>
+            </div>
+
+            <!-- Кнопки для сканера штрих-кодов -->
+            <div class="barcode-buttons">
+                <div class="buttons-title">
+                    <i class="fas fa-barcode"></i> Сканер штрих-кодов
+                </div>
+                <button class="action-button" onclick="startScanner('add', 'barcode')">
+                    <i class="fas fa-plus-circle"></i> Добавить товар
+                </button>
+            </div>
+        </div>
+
+        <!-- Панель сканера -->
+        <div class="scanner-panel" id="scanner-panel">
+            <div id="video-container">
+                <video id="video" playsinline autoplay muted></video>
+                <div class="scan-overlay"></div>
+            </div>
+            <div id="result"></div>
+            <div class="product-info" id="product-info"></div>
+            <button id="confirm-btn" class="action-button" onclick="handleConfirm()" style="display: none;">
+                <i class="fas fa-check-circle"></i> Подтвердить
+            </button>
         </div>
     </div>
 
     <script>
+        // Глобальные переменные
         let currentAction = null;
         let currentProduct = null;
         let videoStream = null;
+        let scannerType = null;
 
-        // Функции для работы со сканером
-        function startScanner(action) {
-            currentAction = action;
-            document.querySelector('.scanner-panel').style.display = 'flex';
-            document.getElementById('confirm-btn').style.display = 'none';
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Кнопка профиля
+            const profileButton = document.getElementById('profile-button');
+            const profileModal = document.getElementById('profile-modal');
 
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(stream => {
-                    videoStream = stream;
-                    const video = document.getElementById('video');
-                    video.srcObject = stream;
-                    video.play();
-                    scanFrame();
-                })
-                .catch(error => {
-                    alert('Ошибка доступа к камере: ' + error.message);
-                    stopScanner();
-                    document.querySelector('.scanner-panel').style.display = 'none';
-                });
+            profileButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!profileButton.contains(event.target) && !profileModal.contains(event.target)) {
+                    profileModal.style.display = 'none';
+                }
+            });
+
+            // Рабочие ссылки в верхнем меню
+            document.getElementById('add-product').addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = "{{ url_for('four') }}";
+            });
+
+            document.getElementById('home').addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = "{{ url_for('second') }}";
+            });
+
+            document.getElementById('all-shelves').addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = "{{ url_for('all_shelves') }}";
+            });
+        });
+
+        // Проверка поддержки камеры
+        function checkCameraSupport() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Ваш браузер не поддерживает доступ к камере. Используйте Chrome, Firefox или Edge.');
+                return false;
+            }
+            return true;
         }
 
-        function scanFrame() {
-            if (!videoStream) return;
+        // Основная функция запуска сканера
+        async function startScanner(action, type = 'qr') {
+            currentAction = action;
+            scannerType = type;
 
+            if (!checkCameraSupport()) return;
+
+            document.getElementById('scanner-panel').style.display = 'flex';
+            document.getElementById('confirm-btn').style.display = 'none';
+            document.getElementById('product-info').innerHTML = '';
+            document.getElementById('result').textContent =
+                type === 'qr' ? 'Наведите на QR-код...' : 'Наведите на штрих-код...';
+
+            try {
+                // Останавливаем предыдущий сканер
+                if (window.Quagga) Quagga.stop();
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+
+                // Получаем доступ к камере
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                videoStream = stream;
+
+                // Ждем загрузки видео
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play().then(resolve).catch(e => {
+                            console.error('Ошибка воспроизведения:', e);
+                            throw new Error('Не удалось воспроизвести видео');
+                        });
+                    };
+                });
+
+                // Запускаем нужный сканер
+                if (type === 'qr') {
+                    scanQRFrame();
+                } else {
+                    initBarcodeScanner();
+                }
+
+            } catch (error) {
+                console.error('Ошибка доступа к камере:', error);
+                document.getElementById('result').textContent =
+                    'Ошибка: ' + error.message + '. Проверьте разрешения камеры.';
+                stopScanner();
+            }
+        }
+
+        // Сканирование QR-кодов
+        function scanQRFrame() {
             const video = document.getElementById('video');
-            if (video.videoWidth === 0 || video.videoHeight === 0) {
-                requestAnimationFrame(scanFrame);
+            if (!videoStream || video.videoWidth === 0) {
+                requestAnimationFrame(scanQRFrame);
                 return;
             }
 
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             try {
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
 
-                if (qrCode) {
-                    handleScannedData(qrCode.data);
+                if (code) {
+                    handleScannedData(code.data);
                     return;
                 }
             } catch (e) {
-                console.error('Ошибка обработки кадра:', e);
+                console.error('Ошибка обработки QR-кода:', e);
             }
-            requestAnimationFrame(scanFrame);
+
+            requestAnimationFrame(scanQRFrame);
         }
 
+        // Сканирование штрих-кодов
+        function initBarcodeScanner() {
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.getElementById('video'),
+                    constraints: {
+                        width: 640,
+                        height: 480,
+                        facingMode: "environment"
+                    }
+                },
+                decoder: {
+                    readers: [
+                        "ean_reader", "ean_8_reader",
+                        "code_128_reader", "code_39_reader",
+                        "upc_reader", "codabar_reader"
+                    ],
+                    debug: false
+                },
+                locate: true
+            }, function(err) {
+                if (err) {
+                    console.error("Ошибка Quagga:", err);
+                    document.getElementById('result').textContent =
+                        'Ошибка инициализации сканера штрих-кодов: ' + err.message;
+                    return;
+                }
+
+                Quagga.start();
+                Quagga.onDetected(function(result) {
+                    handleScannedData(result.codeResult.code);
+                    Quagga.stop();
+                });
+            });
+        }
+
+        // Обработка отсканированных данных
         function handleScannedData(data) {
             try {
-                currentProduct = JSON.parse(data);
-                showProductInfo(currentProduct);
+                let productData;
+                try {
+                    // Пробуем распарсить как JSON (для QR)
+                    productData = JSON.parse(data);
+                } catch {
+                    // Если не JSON, создаем объект товара из штрих-кода
+                    productData = {
+                        article: data,
+                        name: `Товар (${scannerType === 'qr' ? 'QR' : 'Штрих-код'}: ${data})`,
+                        price: "0",
+                        description: ""
+                    };
+                }
+                currentProduct = productData;
+                showProductInfo();
                 document.getElementById('confirm-btn').style.display = 'block';
-                stopScanner();
             } catch (e) {
-                alert('Ошибка чтения QR-кода');
-                requestAnimationFrame(scanFrame);
-            }
-        }
-
-        function showProductInfo(product) {
-            const infoContainer = document.getElementById('product-info');
-            infoContainer.innerHTML = `
-                <h3>${product.name || 'Без названия'}</h3>
-                <p>Артикул: ${product.article || 'не указан'}</p>
-                <p>Цена: ${product.price || '0'} руб.</p>
-                <p>${product.description || ''}</p>
-            `;
-        }
-
-        function handleConfirm() {
-            if (currentAction === 'add' || currentAction === 'delete') {
-                showShelfSelection();
-            } else if (currentAction === 'issue') {
-                // Добавьте логику для выдачи товара
-                alert('Функция выдачи товара в разработке');
+                alert("Ошибка обработки: " + e.message);
                 resetScanner();
             }
         }
 
-        // Функции для работы с полками
-        function showShelfSelection() {
-            const shelves = JSON.parse(localStorage.getItem('shelves') || '[]');
-            const shelfList = document.getElementById('shelf-list');
-            shelfList.innerHTML = '';
-
-            shelves.forEach((shelf, index) => {
-                const div = document.createElement('div');
-                div.className = 'shelf-item';
-                div.innerHTML = `
-                    ${shelf.name}
-                    <button onclick="selectShelf(${index})">Выбрать</button>
-                `;
-                shelfList.appendChild(div);
-            });
-
-            document.getElementById('shelf-modal').style.display = 'block';
+        // Отображение информации о товаре
+        function showProductInfo() {
+            const info = document.getElementById('product-info');
+            info.innerHTML = `
+                <h3>${currentProduct.name}</h3>
+                <p><strong>Артикул:</strong> ${currentProduct.article}</p>
+                <p><strong>Цена:</strong> ${currentProduct.price} руб.</p>
+                ${currentProduct.description ?
+                    `<p><strong>Описание:</strong> ${currentProduct.description}</p>` : ''}
+                <p style="color: var(--success); font-size: 12px;">
+                    Тип: ${scannerType === 'qr' ? 'QR-код' : 'Штрих-код'}
+                </p>
+            `;
         }
 
-        function selectShelf(index) {
-            const shelves = JSON.parse(localStorage.getItem('shelves') || '[]');
+        // Подтверждение действия
+        function handleConfirm() {
             if (currentAction === 'add') {
-                if (!shelves[index].products) {
-                    shelves[index].products = [];
-                }
-                shelves[index].products.push(currentProduct);
-                alert('Товар успешно добавлен на полку!');
-            } else if (currentAction === 'delete') {
-                if (shelves[index].products) {
-                    const productIndex = shelves[index].products.findIndex(product => product.article === currentProduct.article);
-                    if (productIndex !== -1) {
-                        shelves[index].products.splice(productIndex, 1);
-                        alert('Товар удален с полки!');
+                // Создаем форму и отправляем данные на сервер
+                const formData = new FormData();
+                formData.append('qr_content', currentProduct.article);
+
+                fetch("{{ url_for('upload') }}", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Товар успешно добавлен!');
+                        resetScanner();
                     } else {
-                        alert('Товар не найден на этой полке!');
+                        alert('Ошибка: ' + data.message);
                     }
-                } else {
-                    alert('На этой полке нет товаров!');
-                }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при сохранении товара');
+                });
+            } else if (currentAction === 'delete') {
+                // Логика удаления товара
+                alert('Функция удаления в разработке');
+                resetScanner();
             }
-            localStorage.setItem('shelves', JSON.stringify(shelves));
-            closeModal();
-            resetScanner();
         }
 
+        // Остановка сканера
         function stopScanner() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
                 videoStream = null;
             }
+            if (window.Quagga) {
+                Quagga.stop();
+            }
         }
 
+        // Сброс сканера
         function resetScanner() {
-            document.querySelector('.scanner-panel').style.display = 'none';
+            document.getElementById('scanner-panel').style.display = 'none';
             document.getElementById('product-info').innerHTML = '';
+            document.getElementById('result').textContent = '';
             currentProduct = null;
             currentAction = null;
+            scannerType = null;
+            stopScanner();
         }
 
-        function closeModal() {
-            document.getElementById('shelf-modal').style.display = 'none';
-        }
-
-        // Функции для загрузки файлов
+        // Загрузка файлов
         function handleUpload() {
             const input = document.getElementById('file-input');
-            const resultDiv = document.getElementById('result');
+            const result = document.getElementById('result');
 
-            if (input.files.length === 0) {
-                resultDiv.innerHTML = 'Пожалуйста, выберите файл!';
+            if (!input.files.length) {
+                result.textContent = 'Выберите файл!';
+                result.style.color = 'var(--error)';
                 return;
             }
 
             const file = input.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
+            if (file.size > 5 * 1024 * 1024) {
+                result.textContent = 'Файл слишком большой (макс. 5MB)';
+                result.style.color = 'var(--error)';
+                return;
+            }
 
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                resultDiv.innerHTML = data.message || 'Файл успешно загружен!';
-            })
-            .catch(error => {
-                resultDiv.innerHTML = 'Ошибка загрузки файла: ' + error.message;
-            });
+            result.textContent = 'Загрузка...';
+            result.style.color = 'var(--success)';
+
+            // Отправляем форму на сервер
+            document.getElementById('upload-form').submit();
         }
     </script>
 </body>
