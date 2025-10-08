@@ -39,22 +39,22 @@ def decode_qr_code(image):
             img_np = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
         else:
             img_np = image
-        
+
         # Детектируем QR код
         detector = cv2.QRCodeDetector()
         data, bbox, _ = detector.detectAndDecode(img_np)
-        
+
         if data and bbox is not None:
             # Создаем объект похожий на pyzbar для совместимости
             class DecodedObject:
                 def __init__(self, data):
                     self.data = data.encode('utf-8') if isinstance(data, str) else data
                     self.type = 'QRCODE'
-            
+
             return [DecodedObject(data)]
-        
+
         return []
-        
+
     except Exception as e:
         print(f"QR decoding error: {e}")
         return []
