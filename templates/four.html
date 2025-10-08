@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Инвентарная система - Сканер</title>
-    <!-- Библиотеки для сканирования -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
-    <!-- Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -19,7 +17,6 @@
             --text: #ffffff;
             --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
-
         body {
             margin: 0;
             background: var(--dark-bg);
@@ -31,8 +28,6 @@
             min-height: 100vh;
             padding-top: 80px;
         }
-
-        /* Верхнее меню */
         .top-menu {
             position: fixed;
             top: 0;
@@ -45,7 +40,6 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
             z-index: 100;
         }
-
         .top-menu a {
             padding: 15px 30px;
             font-size: 20px;
@@ -61,13 +55,10 @@
             align-items: center;
             justify-content: center;
         }
-
         .top-menu a:hover {
             transform: scale(1.1);
             background: linear-gradient(0deg, rgba(30,60,255,1) 34%, rgba(31,37,255,1) 78%);
         }
-
-        /* Кнопка профиля */
         .profile-button {
             position: absolute;
             right: 50px;
@@ -85,11 +76,9 @@
             border-radius: 50%;
             background-color: rgba(93, 113, 245, 0.3);
         }
-
         .profile-button:hover {
             background-color: rgba(93, 113, 245, 0.6);
         }
-
         .profile-modal {
             display: none;
             position: absolute;
@@ -103,7 +92,6 @@
             z-index: 100;
             overflow: hidden;
         }
-
         .profile-modal a {
             display: block;
             padding: 10px 15px;
@@ -111,12 +99,9 @@
             text-decoration: none;
             text-align: left;
         }
-
         .profile-modal a:hover {
             background-color: #f0f0f0;
         }
-
-        /* Основной контейнер */
         .container {
             width: 90%;
             max-width: 800px;
@@ -126,8 +111,6 @@
             box-shadow: var(--shadow);
             margin-bottom: 30px;
         }
-
-        /* Сканер */
         .scanner-panel {
             display: none;
             flex-direction: column;
@@ -140,7 +123,6 @@
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         #video-container {
             position: relative;
             width: 100%;
@@ -151,7 +133,6 @@
             border: 2px solid var(--success);
             background: #000;
         }
-
         #video {
             position: absolute;
             top: 0;
@@ -161,7 +142,6 @@
             object-fit: cover;
             background: #000;
         }
-
         .scan-overlay {
             position: absolute;
             top: 50%;
@@ -174,14 +154,11 @@
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
             0% { opacity: 0.8; }
             50% { opacity: 0.4; }
             100% { opacity: 0.8; }
         }
-
-        /* Кнопки */
         .buttons-group {
             display: flex;
             flex-direction: column;
@@ -189,7 +166,6 @@
             width: 100%;
             margin: 25px 0;
         }
-
         .qr-buttons, .barcode-buttons {
             display: flex;
             flex-direction: column;
@@ -199,7 +175,6 @@
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .buttons-title {
             text-align: center;
             color: var(--success);
@@ -212,7 +187,6 @@
             justify-content: center;
             gap: 8px;
         }
-
         .action-button {
             display: flex;
             align-items: center;
@@ -228,14 +202,11 @@
             transition: all 0.2s;
             margin: 5px 0;
         }
-
         .action-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             background: linear-gradient(var(--secondary), var(--primary));
         }
-
-        /* Загрузка файлов */
         .upload-section {
             margin: 20px 0;
             padding: 20px;
@@ -243,11 +214,9 @@
             border-radius: 10px;
             border: 1px dashed rgba(255, 255, 255, 0.2);
         }
-
         #file-input {
             display: none;
         }
-
         .file-label {
             display: block;
             padding: 10px;
@@ -258,7 +227,6 @@
             cursor: pointer;
             margin: 10px 0;
         }
-
         #result {
             margin-top: 10px;
             padding: 10px;
@@ -267,8 +235,6 @@
             min-height: 20px;
             background: rgba(0, 0, 0, 0.2);
         }
-
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -281,7 +247,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .modal-content {
             background: var(--darker-bg);
             padding: 25px;
@@ -290,7 +255,6 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-
         .shelf-item {
             display: flex;
             justify-content: space-between;
@@ -301,7 +265,9 @@
             border-radius: 8px;
             cursor: pointer;
         }
-
+        .shelf-item:hover {
+            background: rgba(0, 255, 136, 0.3);
+        }
         .shelf-item button {
             padding: 6px 12px;
             background: var(--success);
@@ -310,10 +276,16 @@
             border-radius: 5px;
             font-weight: 600;
         }
+        .product-display {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
-    <!-- Верхнее меню -->
     <div class="top-menu">
         <a href="{{ url_for('four') }}" id="add-product">Добавить Товар</a>
         <a href="{{ url_for('second') }}" id="home">Главная</a>
@@ -323,13 +295,10 @@
             <a href="{{ url_for('logout') }}">Выйти</a>
         </div>
     </div>
-
-    <!-- Основной контейнер -->
     <div class="container">
-        <!-- Раздел загрузки файлов -->
         <div class="upload-section">
-            <h3><i class="fas fa-upload"></i> Загрузка файлов</h3>
-            <form id="upload-form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+            <h3><i class="fas fa-upload"></i> Загрузка QR-кода</h3>
+            <form id="upload-form" enctype="multipart/form-data">
                 <label for="file-input" class="file-label">
                     <i class="fas fa-file-image"></i> Выберите файл
                 </label>
@@ -339,11 +308,13 @@
                 </button>
             </form>
             <div id="result"></div>
+            <div id="product-display" class="product-display" style="display: none;">
+                <h3 id="product-name">Название товара</h3>
+                <p><strong>Артикул:</strong> <span id="product-article">Артикул</span></p>
+                <p><strong>Содержимое:</strong> <span id="product-content">Содержимое</span></p>
+            </div>
         </div>
-
-        <!-- Блоки кнопок для сканеров -->
         <div class="buttons-group">
-            <!-- Кнопки для QR-сканера -->
             <div class="qr-buttons">
                 <div class="buttons-title">
                     <i class="fas fa-qrcode"></i> Сканер QR-кодов
@@ -352,8 +323,6 @@
                     <i class="fas fa-plus-circle"></i> Добавить товар
                 </button>
             </div>
-
-            <!-- Кнопки для сканера штрих-кодов -->
             <div class="barcode-buttons">
                 <div class="buttons-title">
                     <i class="fas fa-barcode"></i> Сканер штрих-кодов
@@ -363,63 +332,60 @@
                 </button>
             </div>
         </div>
-
-        <!-- Панель сканера -->
         <div class="scanner-panel" id="scanner-panel">
             <div id="video-container">
                 <video id="video" playsinline autoplay muted></video>
                 <div class="scan-overlay"></div>
             </div>
-            <div id="result"></div>
-            <div class="product-info" id="product-info"></div>
+            <div id="scanner-result"></div>
+            <div class="product-info" id="scanner-product-info"></div>
             <button id="confirm-btn" class="action-button" onclick="handleConfirm()" style="display: none;">
                 <i class="fas fa-check-circle"></i> Подтвердить
             </button>
         </div>
     </div>
-
+    <div class="modal" id="shelf-modal">
+        <div class="modal-content">
+            <h3>Выберите полку для товара</h3>
+            <div id="shelves-list"></div>
+            <button class="action-button" onclick="confirmShelfSelection()">
+                <i class="fas fa-check-circle"></i> Подтвердить
+            </button>
+        </div>
+    </div>
     <script>
-        // Глобальные переменные
         let currentAction = null;
         let currentProduct = null;
         let videoStream = null;
         let scannerType = null;
+        let selectedShelfId = null;
 
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            // Кнопка профиля
             const profileButton = document.getElementById('profile-button');
             const profileModal = document.getElementById('profile-modal');
-
             profileButton.addEventListener('click', function(event) {
                 event.stopPropagation();
                 profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
             });
-
             document.addEventListener('click', function(event) {
                 if (!profileButton.contains(event.target) && !profileModal.contains(event.target)) {
                     profileModal.style.display = 'none';
                 }
             });
-
-            // Рабочие ссылки в верхнем меню
             document.getElementById('add-product').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('four') }}";
             });
-
             document.getElementById('home').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('second') }}";
             });
-
             document.getElementById('all-shelves').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('all_shelves') }}";
             });
         });
 
-        // Проверка поддержки камеры
         function checkCameraSupport() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 alert('Ваш браузер не поддерживает доступ к камере. Используйте Chrome, Firefox или Edge.');
@@ -428,27 +394,20 @@
             return true;
         }
 
-        // Основная функция запуска сканера
         async function startScanner(action, type = 'qr') {
             currentAction = action;
             scannerType = type;
-
             if (!checkCameraSupport()) return;
-
             document.getElementById('scanner-panel').style.display = 'flex';
             document.getElementById('confirm-btn').style.display = 'none';
-            document.getElementById('product-info').innerHTML = '';
-            document.getElementById('result').textContent =
+            document.getElementById('scanner-product-info').innerHTML = '';
+            document.getElementById('scanner-result').textContent =
                 type === 'qr' ? 'Наведите на QR-код...' : 'Наведите на штрих-код...';
-
             try {
-                // Останавливаем предыдущий сканер
                 if (window.Quagga) Quagga.stop();
                 if (videoStream) {
                     videoStream.getTracks().forEach(track => track.stop());
                 }
-
-                // Получаем доступ к камере
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'environment',
@@ -456,12 +415,9 @@
                         height: { ideal: 720 }
                     }
                 });
-
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 videoStream = stream;
-
-                // Ждем загрузки видео
                 await new Promise((resolve) => {
                     video.onloadedmetadata = () => {
                         video.play().then(resolve).catch(e => {
@@ -470,40 +426,33 @@
                         });
                     };
                 });
-
-                // Запускаем нужный сканер
                 if (type === 'qr') {
                     scanQRFrame();
                 } else {
                     initBarcodeScanner();
                 }
-
             } catch (error) {
                 console.error('Ошибка доступа к камере:', error);
-                document.getElementById('result').textContent =
+                document.getElementById('scanner-result').textContent =
                     'Ошибка: ' + error.message + '. Проверьте разрешения камеры.';
                 stopScanner();
             }
         }
 
-        // Сканирование QR-кодов
         function scanQRFrame() {
             const video = document.getElementById('video');
             if (!videoStream || video.videoWidth === 0) {
                 requestAnimationFrame(scanQRFrame);
                 return;
             }
-
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
             try {
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const code = jsQR(imageData.data, canvas.width, canvas.height);
-
                 if (code) {
                     handleScannedData(code.data);
                     return;
@@ -511,11 +460,9 @@
             } catch (e) {
                 console.error('Ошибка обработки QR-кода:', e);
             }
-
             requestAnimationFrame(scanQRFrame);
         }
 
-        // Сканирование штрих-кодов
         function initBarcodeScanner() {
             Quagga.init({
                 inputStream: {
@@ -540,11 +487,10 @@
             }, function(err) {
                 if (err) {
                     console.error("Ошибка Quagga:", err);
-                    document.getElementById('result').textContent =
+                    document.getElementById('scanner-result').textContent =
                         'Ошибка инициализации сканера штрих-кодов: ' + err.message;
                     return;
                 }
-
                 Quagga.start();
                 Quagga.onDetected(function(result) {
                     handleScannedData(result.codeResult.code);
@@ -553,15 +499,12 @@
             });
         }
 
-        // Обработка отсканированных данных
         function handleScannedData(data) {
             try {
                 let productData;
                 try {
-                    // Пробуем распарсить как JSON (для QR)
                     productData = JSON.parse(data);
                 } catch {
-                    // Если не JSON, создаем объект товара из штрих-кода
                     productData = {
                         article: data,
                         name: `Товар (${scannerType === 'qr' ? 'QR' : 'Штрих-код'}: ${data})`,
@@ -570,7 +513,8 @@
                     };
                 }
                 currentProduct = productData;
-                showProductInfo();
+                showProductInfo('scanner-product-info');
+                showShelfModal();
                 document.getElementById('confirm-btn').style.display = 'block';
             } catch (e) {
                 alert("Ошибка обработки: " + e.message);
@@ -578,53 +522,6 @@
             }
         }
 
-        // Отображение информации о товаре
-        function showProductInfo() {
-            const info = document.getElementById('product-info');
-            info.innerHTML = `
-                <h3>${currentProduct.name}</h3>
-                <p><strong>Артикул:</strong> ${currentProduct.article}</p>
-                <p><strong>Цена:</strong> ${currentProduct.price} руб.</p>
-                ${currentProduct.description ?
-                    `<p><strong>Описание:</strong> ${currentProduct.description}</p>` : ''}
-                <p style="color: var(--success); font-size: 12px;">
-                    Тип: ${scannerType === 'qr' ? 'QR-код' : 'Штрих-код'}
-                </p>
-            `;
-        }
-
-        // Подтверждение действия
-        function handleConfirm() {
-            if (currentAction === 'add') {
-                // Создаем форму и отправляем данные на сервер
-                const formData = new FormData();
-                formData.append('qr_content', currentProduct.article);
-
-                fetch("{{ url_for('upload') }}", {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Товар успешно добавлен!');
-                        resetScanner();
-                    } else {
-                        alert('Ошибка: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                    alert('Произошла ошибка при сохранении товара');
-                });
-            } else if (currentAction === 'delete') {
-                // Логика удаления товара
-                alert('Функция удаления в разработке');
-                resetScanner();
-            }
-        }
-
-        // Остановка сканера
         function stopScanner() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
@@ -635,40 +532,150 @@
             }
         }
 
-        // Сброс сканера
         function resetScanner() {
             document.getElementById('scanner-panel').style.display = 'none';
-            document.getElementById('product-info').innerHTML = '';
-            document.getElementById('result').textContent = '';
+            document.getElementById('scanner-product-info').innerHTML = '';
+            document.getElementById('scanner-result').textContent = '';
             currentProduct = null;
             currentAction = null;
             scannerType = null;
             stopScanner();
         }
 
-        // Загрузка файлов
         function handleUpload() {
             const input = document.getElementById('file-input');
             const result = document.getElementById('result');
-
             if (!input.files.length) {
                 result.textContent = 'Выберите файл!';
                 result.style.color = 'var(--error)';
                 return;
             }
-
             const file = input.files[0];
             if (file.size > 5 * 1024 * 1024) {
                 result.textContent = 'Файл слишком большой (макс. 5MB)';
                 result.style.color = 'var(--error)';
                 return;
             }
-
-            result.textContent = 'Загрузка...';
+            result.textContent = 'Обработка QR-кода...';
             result.style.color = 'var(--success)';
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch("/upload_qr", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentProduct = data.product;
+                    // Добавляем qr_content к текущему продукту для сохранения
+                    currentProduct.qr_content = data.qr_content;
+                    document.getElementById('product-display').style.display = 'block';
+                    document.getElementById('product-name').textContent = currentProduct.name || 'Неизвестный товар';
+                    document.getElementById('product-article').textContent = currentProduct.article || 'Нет данных';
+                    document.getElementById('product-content').textContent = data.qr_content || 'Нет содержимого';
+                    showShelfModal();
+                } else {
+                    result.textContent = 'Ошибка: ' + data.message;
+                    result.style.color = 'var(--error)';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                result.textContent = 'Произошла ошибка при обработке файла';
+                result.style.color = 'var(--error)';
+            });
+        }
 
-            // Отправляем форму на сервер
-            document.getElementById('upload-form').submit();
+        function showProductInfo(elementId) {
+            const infoElement = document.getElementById(elementId);
+            infoElement.innerHTML = `
+                <h3>${currentProduct.name || 'Неизвестный товар'}</h3>
+                <p><strong>Артикул:</strong> ${currentProduct.article || 'Нет данных'}</p>
+                <p><strong>Цена:</strong> ${currentProduct.price || '0'} руб.</p>
+                ${currentProduct.description ?
+                    `<p><strong>Описание:</strong> ${currentProduct.description}</p>` : ''}
+                <p style="color: var(--success); font-size: 12px;">
+                    Тип: ${scannerType === 'qr' ? 'QR-код' : 'Штрих-код'}
+                </p>
+            `;
+        }
+
+        function showShelfModal() {
+            const modal = document.getElementById('shelf-modal');
+            modal.style.display = 'flex';
+            fetch("/get_shelves")
+            .then(response => response.json())
+            .then(shelves => {
+                const shelvesList = document.getElementById('shelves-list');
+                shelvesList.innerHTML = '';
+                if (shelves.length === 0) {
+                    shelvesList.innerHTML = '<p>Нет доступных полок. <a href="{{ url_for("second") }}">Создайте полку</a>.</p>';
+                    return;
+                }
+                shelves.forEach(shelf => {
+                    const shelfItem = document.createElement('div');
+                    shelfItem.className = 'shelf-item';
+                    shelfItem.textContent = shelf.name;
+                    shelfItem.onclick = () => selectShelf(shelf.id);
+                    shelvesList.appendChild(shelfItem);
+                });
+            });
+        }
+
+        function selectShelf(shelfId) {
+            selectedShelfId = shelfId;
+            const items = document.querySelectorAll('.shelf-item');
+            items.forEach(item => item.style.background = 'rgba(255, 255, 255, 0.1)');
+            event.target.style.background = 'rgba(0, 255, 136, 0.3)';
+        }
+
+        function confirmShelfSelection() {
+            if (!selectedShelfId) {
+                alert('Выберите полку!');
+                return;
+            }
+
+            // Добавляем shelf_id к данным товара
+            currentProduct.shelf_id = selectedShelfId;
+
+            // Используем qr_content как основной контент товара
+            const productData = {
+                article: currentProduct.article || currentProduct.qr_content || 'No Article',
+                name: currentProduct.name || `Товар (${currentProduct.article || currentProduct.qr_content})`,
+                shelf_id: selectedShelfId,
+                qr_content: currentProduct.qr_content || currentProduct.article || 'No Content'
+            };
+
+            fetch("/add_product_to_shelf", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Товар успешно добавлен на полку!');
+                    document.getElementById('shelf-modal').style.display = 'none';
+                    document.getElementById('product-display').style.display = 'none';
+                    // Очищаем форму загрузки файла
+                    document.getElementById('file-input').value = '';
+                    document.getElementById('result').textContent = '';
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при сохранении товара');
+            });
+        }
+
+        // Функция для подтверждения из сканера
+        function handleConfirm() {
+            showShelfModal();
         }
     </script>
 </body>
