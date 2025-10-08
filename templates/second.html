@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <title>Стеллажи</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/static/script.js" defer></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pcss2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -47,29 +46,29 @@
         }
         .profile-button {
             position: absolute;
-            right: 50px; /* Смещаем левее */
+            right: 50px;
             background: none;
             border: none;
             color: white;
-            font-size: 30px; /* Увеличиваем размер */
+            font-size: 30px;
             cursor: pointer;
-            padding: 10px 15px; /* Увеличиваем padding */
-            width: 50px; /* Увеличиваем ширину */
-            height: 50px; /* Увеличиваем высоту */
+            padding: 10px 15px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            background-color: rgba(93, 113, 245, 0.3); /* Добавляем легкий фон */
+            background-color: rgba(93, 113, 245, 0.3);
         }
         .profile-button:hover {
-            background-color: rgba(93, 113, 245, 0.6); /* Эффект наведения */
+            background-color: rgba(93, 113, 245, 0.6);
         }
         .profile-modal {
             display: none;
             position: absolute;
-            right: 50px; /* Смещаем модальное окно вместе с кнопкой */
-            top: 75px; /* Немного ниже */
+            right: 50px;
+            top: 75px;
             background-color: white;
             color: black;
             width: 200px;
@@ -198,7 +197,6 @@
         <button id="add-shelf">Добавить полку</button>
         <button id="remove-shelf">Удалить полку</button>
         <button id="remove-all-shelves">Удалить все полки</button>
-        <button id="save-shelves">Сохранить</button>
     </div>
     <div id="shelves-container"></div>
     <div id="info-modal" class="modal">
@@ -214,64 +212,96 @@
             const addShelfButton = document.getElementById('add-shelf');
             const removeShelfButton = document.getElementById('remove-shelf');
             const removeAllShelvesButton = document.getElementById('remove-all-shelves');
-            const saveShelvesButton = document.getElementById('save-shelves');
             const modal = document.getElementById('info-modal');
             const modalClose = modal.querySelector('.close');
             const modalTitle = document.getElementById('shelf-title');
             const modalInfo = document.getElementById('shelf-info');
-            let shelfCounter = 1;
 
-            // Код для кнопки профиля
+            // Кнопка профиля
             const profileButton = document.getElementById('profile-button');
             const profileModal = document.getElementById('profile-modal');
-
             profileButton.addEventListener('click', function(event) {
                 event.stopPropagation();
                 profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
             });
-
             document.addEventListener('click', function(event) {
                 if (!profileButton.contains(event.target) && !profileModal.contains(event.target)) {
                     profileModal.style.display = 'none';
                 }
             });
 
-            // Остальной JavaScript-код остается без изменений
-            const savedShelves = JSON.parse(localStorage.getItem('shelves')) || [];
-            savedShelves.forEach(shelf => {
-                createShelf(shelf.name, shelf.info, shelf.products);
-            });
-            shelfCounter = savedShelves.length + 1;
+            // Загружаем полки с сервера
+            function loadShelves() {
+                fetch("/get_shelves")
+                .then(response => response.json())
+                .then(shelves => {
+                    shelvesContainer.innerHTML = '';
+                    shelves.forEach(shelf => {
+                        createShelf(shelf.id, shelf.name);
+                    });
+                });
+            }
 
+            loadShelves();
+
+            // Добавление новой полки
             addShelfButton.addEventListener('click', () => {
-                createShelf(`Полка ${shelfCounter}`, `Это содержимое полки ${shelfCounter}.`, []);
-                shelfCounter++;
-            });
-
-            removeShelfButton.addEventListener('click', () => {
-                if (shelvesContainer.lastChild) {
-                    shelvesContainer.removeChild(shelvesContainer.lastChild);
+                const shelfName = prompt("Введите название полки:");
+                if (shelfName) {
+                    fetch("/add_shelf", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `name=${encodeURIComponent(shelfName)}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            createShelf(data.shelf_id, shelfName);
+                        } else {
+                            alert("Ошибка: " + data.message);
+                        }
+                    });
                 }
             });
 
-            removeAllShelvesButton.addEventListener('click', () => {
-                shelvesContainer.innerHTML = '';
-                shelfCounter = 1;
-            });
-
-            saveShelvesButton.addEventListener('click', () => {
-                const shelves = [];
-                shelvesContainer.querySelectorAll('.shelf').forEach(shelf => {
-                    shelves.push({
-                        name: shelf.textContent.trim(),
-                        info: shelf.querySelector('.info-button').dataset.info,
-                        products: shelf.dataset.products ? JSON.parse(shelf.dataset.products) : []
+            // Удаление полки
+            removeShelfButton.addEventListener('click', () => {
+                const shelfId = prompt("Введите ID полки для удаления:");
+                if (shelfId) {
+                    fetch(`/remove_shelf/${shelfId}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.querySelector(`.shelf[data-id="${shelfId}"]`).remove();
+                        } else {
+                            alert("Ошибка: " + data.message);
+                        }
                     });
-                });
-                localStorage.setItem('shelves', JSON.stringify(shelves));
-                alert('Полочки сохранены!');
+                }
             });
 
+            // Удаление всех полок
+            removeAllShelvesButton.addEventListener('click', () => {
+                if (confirm("Удалить все полки?")) {
+                    fetch("/remove_all_shelves", {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            shelvesContainer.innerHTML = '';
+                        } else {
+                            alert("Ошибка: " + data.message);
+                        }
+                    });
+                }
+            });
+
+            // Закрытие модального окна
             modalClose.addEventListener('click', () => {
                 modal.style.display = 'none';
             });
@@ -282,40 +312,47 @@
                 }
             });
 
-            function createShelf(name, info, products) {
+            // Создание полки - ИСПРАВЛЕННАЯ ФУНКЦИЯ
+            function createShelf(id, name) {
                 const shelf = document.createElement('div');
                 shelf.className = 'shelf';
-                shelf.dataset.products = JSON.stringify(products);
+                shelf.dataset.id = id;
                 shelf.innerHTML = `
                     <span>${name}</span>
                     <button class="info-button">i</button>
                 `;
                 const infoButton = shelf.querySelector('.info-button');
-                infoButton.dataset.info = info;
                 infoButton.addEventListener('click', () => {
-                    modalTitle.textContent = name;
-                    modalInfo.innerHTML = `
-                        <p>${info}</p>
-                        <h3>Товары на полке:</h3>
-                        <ul>
-                            ${products.map(product => `<li>${product.name} - ${product.price} руб.</li>`).join('')}
-                        </ul>
-                    `;
-                    modal.style.display = 'block';
+                    fetch(`/get_shelf_products/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        modalTitle.textContent = name;
+                        modalInfo.innerHTML = `
+                            <h3>Товары на полке:</h3>
+                            <ul>
+                                ${data.products.length > 0 ? data.products.map(product => `<li>${product.name} (${product.article})</li>`).join('') : '<li>Нет товаров</li>'}
+                            </ul>
+                        `;
+                        modal.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error loading shelf products:', error);
+                        modalInfo.innerHTML = '<p>Ошибка загрузки данных о товарах</p>';
+                        modal.style.display = 'block';
+                    });
                 });
                 shelvesContainer.appendChild(shelf);
             }
 
+            // Навигация
             document.getElementById('add-product').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('four') }}";
             });
-
             document.getElementById('home').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('second') }}";
             });
-
             document.getElementById('all-shelves').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('all_shelves') }}";
