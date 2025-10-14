@@ -7,6 +7,29 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='png/registericon.png') }}">
     <script src="{{ url_for('static', filename='js/register.js') }}"></script>
     <title>Registration</title>
+    <style>
+        /* Стили только для ссылки "Есть аккаунт?" */
+        .register p {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .register a {
+            color: #5d71f5;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background: rgba(93, 113, 245, 0.1);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .register a:hover {
+            background: rgba(93, 113, 245, 0.2);
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -27,7 +50,7 @@
             <button type="submit">Зарегистрироваться</button>
         </form>
         <div class="register">
-            <p><a href="{{ url_for('login') }}">Есть аккаунт?</a> </p>
+            <p><a href="{{ url_for('login') }}">Есть аккаунт?</a></p>
         </div>
     </div>
 </body>
