@@ -12,7 +12,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'key'
 db = SQLAlchemy(app)
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -20,13 +19,11 @@ class User(db.Model):
     products = db.relationship('Product', backref='owner', lazy=True)
     shelves = db.relationship('Shelf', backref='owner', lazy=True)
 
-
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     qr_content = db.Column(db.String(255), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     shelf_id = db.Column(db.Integer, db.ForeignKey('shelf.id'), nullable=True)
-
 
 class Shelf(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,26 +31,21 @@ class Shelf(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     products = db.relationship('Product', backref='shelf', lazy=True)
 
-
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-
 def check_and_migrate_db():
     """Проверяет и обновляет структуру базы данных при необходимости"""
     try:
-        # Пробуем выполнить запрос с shelf_id
         with db.engine.connect() as conn:
             conn.execute(text("SELECT shelf_id FROM product LIMIT 1"))
         print("База данных актуальна")
     except Exception as e:
         print(f"Миграция базы данных: {e}")
-        # Создаем все таблицы заново
         db.drop_all()
         db.create_all()
         print("База данных пересоздана")
-
 
 def decode_qr_code(image):
     try:
@@ -73,20 +65,16 @@ def decode_qr_code(image):
         print(f"QR decoding error: {e}")
         return None
 
-
-# Маршруты остаются без изменений...
+# Маршруты
 @app.route("/upload_qr", methods=['POST'])
 def upload_qr():
     if 'user_email' not in session:
         return jsonify({"success": False, "message": "Пожалуйста, войдите в систему."})
-
     if 'file' not in request.files:
         return jsonify({"success": False, "message": "Файл не загружен"})
-
     file = request.files['file']
     if file.filename == '':
         return jsonify({"success": False, "message": "Пустое имя файла"})
-
     try:
         qr_content = decode_qr_code(Image.open(file.stream))
         if qr_content:
@@ -102,26 +90,21 @@ def upload_qr():
     except Exception as e:
         return jsonify({"success": False, "message": f"Ошибка при обработке файла: {str(e)}"})
 
-
 @app.route("/get_shelves", methods=['GET'])
 def get_shelves():
     if 'user_email' not in session:
         return jsonify([])
-
     user = User.query.filter_by(email=session['user_email']).first()
     shelves = Shelf.query.filter_by(user_id=user.id).all()
     shelves_data = [{"id": shelf.id, "name": shelf.name} for shelf in shelves]
     return jsonify(shelves_data)
 
-
 @app.route("/add_product_to_shelf", methods=['POST'])
 def add_product_to_shelf():
     if 'user_email' not in session:
         return jsonify({"success": False, "message": "Пожалуйста, войдите в систему."})
-
-    data = request.json
+    data = request.get_json()
     user = User.query.filter_by(email=session['user_email']).first()
-
     new_product = Product(
         qr_content=data.get('qr_content', data.get('article', 'No Article')),
         user_id=user.id,
@@ -129,9 +112,7 @@ def add_product_to_shelf():
     )
     db.session.add(new_product)
     db.session.commit()
-
     return jsonify({"success": True, "message": "Товар успешно добавлен"})
-
 
 @app.route("/upload", methods=['POST'])
 def upload():
@@ -156,18 +137,14 @@ def upload():
             flash(f'Ошибка при обработке файла: {str(e)}', 'danger')
     return redirect(url_for('second'))
 
-
 @app.route("/get_shelf_products/<int:shelf_id>")
 def get_shelf_products(shelf_id):
     if 'user_email' not in session:
         return jsonify({"products": []})
-
     user = User.query.filter_by(email=session['user_email']).first()
     shelf = Shelf.query.get(shelf_id)
-
     if not shelf or shelf.user_id != user.id:
         return jsonify({"products": []})
-
     products = Product.query.filter_by(shelf_id=shelf_id, user_id=user.id).all()
     products_data = [
         {
@@ -178,32 +155,27 @@ def get_shelf_products(shelf_id):
     ]
     return jsonify({"products": products_data})
 
-
 @app.route("/second")
 def second():
     if 'user_email' not in session:
         flash('Пожалуйста, войдите в систему.', 'danger')
         return redirect(url_for('login'))
     user = User.query.filter_by(email=session['user_email']).first()
-    products = Product.query.filter_by(user_id=user.id).all()  # Явный запрос
+    products = Product.query.filter_by(user_id=user.id).all()
     shelves = Shelf.query.filter_by(user_id=user.id).all()
     return render_template("second.html", products=products, shelves=shelves)
-
 
 @app.route("/index")
 def index():
     return render_template("index.html")
 
-
 @app.route("/third")
 def third():
     return render_template("third.html")
 
-
 @app.route("/four")
 def four():
     return render_template("four.html")
-
 
 @app.route("/gg")
 def gg():
@@ -213,7 +185,6 @@ def gg():
     user = User.query.filter_by(email=session['user_email']).first()
     shelves = Shelf.query.filter_by(user_id=user.id).all()
     return render_template("gg.html", shelves=shelves)
-
 
 @app.route("/", methods=['GET', 'POST'])
 def login():
@@ -231,7 +202,6 @@ def login():
         else:
             flash('Неверный email или пароль!', 'danger')
     return render_template("login.html")
-
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -253,13 +223,11 @@ def register():
         return redirect(url_for('gg'))
     return render_template("register.html")
 
-
 @app.route("/logout")
 def logout():
     session.pop('user_email', None)
     flash('Вы вышли из системы.', 'success')
     return redirect(url_for('login'))
-
 
 @app.route('/add_shelf', methods=['POST'])
 def add_shelf():
@@ -271,7 +239,6 @@ def add_shelf():
     db.session.add(new_shelf)
     db.session.commit()
     return jsonify({"success": True, "shelf_id": new_shelf.id})
-
 
 @app.route('/remove_shelf/<int:shelf_id>', methods=['POST'])
 def remove_shelf(shelf_id):
@@ -285,7 +252,6 @@ def remove_shelf(shelf_id):
         return jsonify({"success": True})
     return jsonify({"success": False, "message": "Это не ваша полка."})
 
-
 @app.route('/remove_all_shelves', methods=['POST'])
 def remove_all_shelves():
     if 'user_email' not in session:
@@ -296,52 +262,72 @@ def remove_all_shelves():
     db.session.commit()
     return jsonify({"success": True})
 
-
 @app.route('/all_shelves')
 def all_shelves():
     if 'user_email' not in session:
         flash('Пожалуйста, войдите в систему.', 'danger')
         return redirect(url_for('login'))
-
     user = User.query.filter_by(email=session['user_email']).first()
     products = Product.query.filter_by(user_id=user.id).all()
     total_products = len(products)
-
-    return render_template('all_shelves.html', products=products, total_products=total_products)
-
+    shelves = Shelf.query.filter_by(user_id=user.id).all()
+    return render_template('all_shelves.html', products=products, total_products=total_products, shelves=shelves)
 
 @app.route('/delete_product/<int:product_id>', methods=['POST'])
 def delete_product(product_id):
     if 'user_email' not in session:
         return jsonify({"success": False, "message": "Пожалуйста, войдите в систему."})
+    user = User.query.filter_by(email=session['user_email']).first()
+    product = Product.query.filter_by(id=product_id, user_id=user.id).first()
+    if not product:
+        return jsonify({"success": False, "message": "Товар не найден."})
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({"success": True, "message": "Товар успешно удален."})
+
+@app.route('/update_product', methods=['POST'])
+def update_product():
+    if 'user_email' not in session:
+        return jsonify({"success": False, "message": "Пожалуйста, войдите в систему."})
+
+    data = request.get_json()
+    product_id = data.get('product_id')
+    qr_content = data.get('qr_content')
+    shelf_id = data.get('shelf_id')
+
+    if not product_id or not qr_content:
+        return jsonify({"success": False, "message": "Отсутствуют обязательные данные"})
 
     user = User.query.filter_by(email=session['user_email']).first()
     product = Product.query.filter_by(id=product_id, user_id=user.id).first()
 
     if not product:
-        return jsonify({"success": False, "message": "Товар не найден."})
+        return jsonify({"success": False, "message": "Товар не найден"})
 
-    db.session.delete(product)
+    product.qr_content = qr_content
+
+    if shelf_id:
+        shelf = Shelf.query.filter_by(id=shelf_id, user_id=user.id).first()
+        if not shelf:
+            return jsonify({"success": False, "message": "Полка не найдена"})
+        product.shelf_id = shelf_id
+    else:
+        product.shelf_id = None
+
     db.session.commit()
-
-    return jsonify({"success": True, "message": "Товар успешно удален."})
-
+    return jsonify({"success": True, "message": "Товар успешно обновлен"})
 
 @app.route('/move_product_to_shelf', methods=['POST'])
 def move_product_to_shelf():
     if 'user_email' not in session:
         return jsonify({"success": False, "message": "Пожалуйста, войдите в систему."})
-
-    data = request.json
+    data = request.get_json()
     product_id = data.get('product_id')
     shelf_id = data.get('shelf_id')
-
     user = User.query.filter_by(email=session['user_email']).first()
     product = Product.query.filter_by(id=product_id, user_id=user.id).first()
-
     if not product:
         return jsonify({"success": False, "message": "Товар не найден."})
-
     if not shelf_id:
         product.shelf_id = None
     else:
@@ -349,11 +335,8 @@ def move_product_to_shelf():
         if not shelf:
             return jsonify({"success": False, "message": "Полка не найдена."})
         product.shelf_id = shelf_id
-
     db.session.commit()
-
     return jsonify({"success": True, "message": "Товар перемещен."})
-
 
 if __name__ == "__main__":
     with app.app_context():
