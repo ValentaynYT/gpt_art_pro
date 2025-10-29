@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Заявки от заказчиков</title>
+    <style>
+        /* Используем тот же стиль, что и в вашем примере */
+        body {
+            margin: 0;
+            background: rgb(39,40,43);
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        /* Остальные стили аналогичны вашему примеру */
+    </style>
+</head>
+<body>
+    <div class="top-menu">
+        <a href="{{ url_for('owner_dashboard') }}">Главная</a>
+        <a href="{{ url_for('owner_products') }}">Общий список товаров</a>
+    </div>
+    <div class="product-list-container">
+        <h2>Заявки от заказчиков</h2>
+        {% if requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID заявки</th>
+                    <th>Заказчик</th>
+                    <th>Товар</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                <tr>
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.customer_name }}</td>
+                    <td>{{ request.product_name }}</td>
+                    <td>{{ request.status }}</td>
+                    <td class="actions">
+                        <button class="action-button" onclick="approveRequest({{ request.id }})">✅</button>
+                        <button class="action-button" onclick="rejectRequest({{ request.id }})">❌</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-products">
+            <h3>Заявок пока нет</h3>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
