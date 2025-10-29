@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <link href="{{ url_for('static', filename='png/registericon.png') }}" rel="shortcut icon">
-    <title>Login</title>
+    <title>Вход</title>
 </head>
 <body>
     <div class="wrapper">
@@ -19,6 +19,14 @@
                 <input type="password" name="password" required>
                 <label>Введите свой пароль</label>
             </div>
+            <div class="input-field">
+                <select name="role" required>
+                    <option value="" disabled selected>Выберите роль</option>
+                    <option value="owner">Владелец</option>
+                    <option value="worker">Рабочий</option>
+                    <option value="customer">Заказчик</option>
+                </select>
+            </div>
             <div class="forget">
                 <label for="remember">
                     <input type="checkbox" id="remember" name="remember">
@@ -27,7 +35,7 @@
             </div>
             <button type="submit" class="submit">Войти</button>
             <div class="register">
-                <p><a href="{{ url_for('register') }}">У вас нет аккаунта? </a> </p>
+                <p><a href="{{ url_for('register') }}">У вас нет аккаунта?</a></p>
             </div>
         </form>
     </div>
