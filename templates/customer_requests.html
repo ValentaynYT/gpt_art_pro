@@ -51,9 +51,7 @@
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(93, 113, 245, 0.4);
         }
-        .top-menu a.active {
-            background: linear-gradient(0deg, rgba(0,255,136,1) 34%, rgba(0,200,100,1) 78%);
-        }
+        /* Убираем зеленую подсветку для активной кнопки */
         .dashboard-container {
             display: flex;
             flex-direction: column;
@@ -314,7 +312,7 @@
         }
         .new-request-btn {
             padding: 12px 25px;
-            background: linear-gradient(0deg, rgba(0,255,136,1) 34%, rgba(0,200,100,1) 78%);
+            background: linear-gradient(0deg, rgba(93,113,245,1) 34%, rgba(76,81,255,1) 78%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -327,7 +325,7 @@
         }
         .new-request-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+            box-shadow: 0 4px 15px rgba(93, 113, 245, 0.4);
         }
         .loading {
             text-align: center;
@@ -448,7 +446,7 @@
         }
         .submit-btn {
             padding: 12px 25px;
-            background: linear-gradient(0deg, rgba(0,255,136,1) 34%, rgba(0,200,100,1) 78%);
+            background: linear-gradient(0deg, rgba(93,113,245,1) 34%, rgba(76,81,255,1) 78%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -457,7 +455,7 @@
         }
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+            box-shadow: 0 4px 15px rgba(93, 113, 245, 0.4);
         }
         .submit-btn:disabled {
             background: rgba(255, 255, 255, 0.2);
@@ -560,13 +558,13 @@
 <body>
     <!-- Верхнее меню с навигацией -->
     <div class="top-menu">
-        <a href="{{ url_for('customer_products') }}">Товары в наличии</a>
-        <a href="{{ url_for('customer_search') }}">Поиск товаров</a>
-        <a href="{{ url_for('customer_requests') }}" class="active">
-            Мои заявки
+        <a href="{{ url_for('customer_products') }}"> Товары в наличии</a>
+        <a href="{{ url_for('customer_search') }}"> Поиск товаров</a>
+        <a href="{{ url_for('customer_requests') }}">
+             Мои заявки
             <span class="notification-badge" id="requests-badge">0</span>
         </a>
-        <a href="{{ url_for('customer_dashboard') }}">Главная</a>
+        <a href="{{ url_for('customer_dashboard') }}"> Главная</a>
         <button class="profile-button" id="profile-button">👤</button>
         <div class="profile-modal" id="profile-modal">
             <a href="#help">Помощь</a>
@@ -574,6 +572,7 @@
             <a href="{{ url_for('logout') }}" style="color: #ff4757;">Выйти</a>
         </div>
     </div>
+
     <div class="dashboard-container">
         <!-- Заголовок и статистика -->
         <div class="welcome-section">
@@ -598,6 +597,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Фильтры и действия -->
         <div class="dashboard-section">
             <div class="filters-container">
@@ -619,6 +619,7 @@
                 </button>
             </div>
         </div>
+
         <!-- Таблица заявок -->
         <div class="dashboard-section">
             <h2>Список заявок</h2>
@@ -627,6 +628,7 @@
             </div>
         </div>
     </div>
+
     <!-- Модальное окно просмотра заявки -->
     <div class="modal" id="request-details-modal">
         <div class="modal-content">
@@ -660,6 +662,7 @@
             </div>
         </div>
     </div>
+
     <!-- Модальное окно создания новой заявки -->
     <div class="modal" id="new-request-modal">
         <div class="modal-content">
@@ -697,9 +700,11 @@
             </form>
         </div>
     </div>
+
     <script>
         // Глобальные переменные для хранения данных
         let requestsData = [];
+
         document.addEventListener('DOMContentLoaded', function() {
             // Инициализация даты
             const now = new Date();
@@ -711,52 +716,66 @@
             };
             document.getElementById('current-date').textContent =
                 'Сегодня: ' + now.toLocaleDateString('ru-RU', options);
+
             // Управление модальным окном профиля
             const profileButton = document.getElementById('profile-button');
             const profileModal = document.getElementById('profile-modal');
+
             profileButton.addEventListener('click', function(event) {
                 event.stopPropagation();
                 profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
             });
+
             document.addEventListener('click', function(event) {
                 if (!profileButton.contains(event.target) && !profileModal.contains(event.target)) {
                     profileModal.style.display = 'none';
                 }
             });
+
             // Загрузка данных с сервера
             loadRequestsData();
+
             // Обработчики фильтров
             document.getElementById('status-filter').addEventListener('change', filterRequests);
             document.getElementById('date-filter').addEventListener('change', filterRequests);
+
             // Обработчики кнопок
             document.getElementById('new-request-btn').addEventListener('click', function() {
                 document.getElementById('new-request-modal').style.display = 'flex';
             });
+
             document.getElementById('close-new-request-modal').addEventListener('click', function() {
                 document.getElementById('new-request-modal').style.display = 'none';
             });
+
             document.getElementById('cancel-new-request').addEventListener('click', function() {
                 document.getElementById('new-request-modal').style.display = 'none';
             });
+
             document.getElementById('close-details-modal').addEventListener('click', function() {
                 document.getElementById('request-details-modal').style.display = 'none';
             });
+
             // Обработчик формы создания заявки
             document.getElementById('new-request-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 createNewRequest();
             });
+
             // Закрытие модальных окон при клике вне их
             window.addEventListener('click', function(event) {
                 const detailsModal = document.getElementById('request-details-modal');
                 const newRequestModal = document.getElementById('new-request-modal');
+
                 if (event.target === detailsModal) {
                     detailsModal.style.display = 'none';
                 }
+
                 if (event.target === newRequestModal) {
                     newRequestModal.style.display = 'none';
                 }
             });
+
             // Клик по ссылкам меню
             document.querySelectorAll('.top-menu a').forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -765,6 +784,7 @@
                     }
                 });
             });
+
             // Клик по ссылкам профиля
             document.querySelectorAll('.profile-modal a').forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -775,10 +795,12 @@
                 });
             });
         });
+
         // Функция загрузки данных о заявках
         function loadRequestsData() {
             const container = document.getElementById('requests-list');
             container.innerHTML = '<div class="loading">Загрузка заявок...</div>';
+
             fetch('/api/customer_requests')
                 .then(response => {
                     if (!response.ok) {
@@ -803,24 +825,29 @@
                     `;
                 });
         }
+
         // Обновление статистики заявок
         function updateRequestsStats(requests) {
             const totalRequests = requests.length;
             const newRequests = requests.filter(r => r.status === 'new').length;
             const inProgressRequests = requests.filter(r => r.status === 'in-progress').length;
             const completedRequests = requests.filter(r => r.status === 'completed').length;
+
             document.getElementById('total-requests').textContent = totalRequests;
             document.getElementById('new-requests').textContent = newRequests;
             document.getElementById('in-progress-requests').textContent = inProgressRequests;
             document.getElementById('completed-requests').textContent = completedRequests;
+
             // Обновляем бейдж уведомлений
             const badge = document.getElementById('requests-badge');
             badge.textContent = newRequests + inProgressRequests;
             badge.style.display = (newRequests + inProgressRequests) > 0 ? 'inline-flex' : 'none';
         }
+
         // Отображение списка заявок
         function displayRequestsList(requests) {
             const container = document.getElementById('requests-list');
+
             if (requests.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -831,6 +858,7 @@
                 `;
                 return;
             }
+
             let html = `
                 <table class="requests-table">
                     <thead>
@@ -845,11 +873,13 @@
                     </thead>
                     <tbody>
             `;
+
             requests.forEach(request => {
                 const statusClass = `status-${request.status}-badge`;
                 const statusText = getStatusText(request.status);
                 const typeText = getTypeText(request.type);
                 const date = new Date(request.created_at).toLocaleDateString('ru-RU');
+
                 html += `
                     <tr>
                         <td class="request-id">#${request.id}</td>
@@ -869,8 +899,10 @@
                     </tr>
                 `;
             });
+
             html += '</tbody></table>';
             container.innerHTML = html;
+
             // Добавляем обработчики для кнопок действий
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -878,6 +910,7 @@
                     showRequestDetails(requestId);
                 });
             });
+
             document.querySelectorAll('.cancel-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const requestId = this.getAttribute('data-request-id');
@@ -885,19 +918,24 @@
                 });
             });
         }
+
         // Фильтрация заявок
         function filterRequests() {
             const statusFilter = document.getElementById('status-filter').value;
             const dateFilter = document.getElementById('date-filter').value;
+
             let filteredRequests = [...requestsData];
+
             // Фильтрация по статусу
             if (statusFilter !== 'all') {
                 filteredRequests = filteredRequests.filter(request => request.status === statusFilter);
             }
+
             // Фильтрация по дате
             if (dateFilter !== 'all') {
                 const now = new Date();
                 let startDate;
+
                 switch(dateFilter) {
                     case 'today':
                         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -909,26 +947,32 @@
                         startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
                         break;
                 }
+
                 filteredRequests = filteredRequests.filter(request => {
                     const requestDate = new Date(request.created_at);
                     return requestDate >= startDate;
                 });
             }
+
             displayRequestsList(filteredRequests);
         }
+
         // Показать детали заявки
         function showRequestDetails(requestId) {
             const request = requestsData.find(r => r.id == requestId);
+
             if (!request) {
                 alert('Заявка не найдена');
                 return;
             }
+
             document.getElementById('modal-request-id').textContent = request.id;
             document.getElementById('modal-status').innerHTML = `<span class="request-status status-${request.status}-badge">${getStatusText(request.status)}</span>`;
             document.getElementById('modal-type').textContent = getTypeText(request.type);
             document.getElementById('modal-priority').textContent = getPriorityText(request.priority);
             document.getElementById('modal-description').textContent = request.description;
             document.getElementById('modal-created-date').textContent = new Date(request.created_at).toLocaleDateString('ru-RU');
+
             // Загрузка товаров заявки
             let productsHtml = '';
             if (request.products && request.products.length > 0) {
@@ -943,9 +987,11 @@
             } else {
                 productsHtml = '<p>В этой заявке нет товаров</p>';
             }
+
             document.getElementById('modal-products-list').innerHTML = `<h4>Товары в заявке:</h4>${productsHtml}`;
             document.getElementById('request-details-modal').style.display = 'flex';
         }
+
         // Отмена заявки
         function cancelRequest(requestId) {
             if (confirm('Вы уверены, что хотите отменить эту заявку?')) {
@@ -975,21 +1021,26 @@
                 });
             }
         }
+
         // Создание новой заявки
         function createNewRequest() {
             const type = document.getElementById('request-type').value;
             const priority = document.getElementById('request-priority').value;
             const description = document.getElementById('request-description').value;
+
             console.log('Данные формы:', { type, priority, description });
+
             if (!type || !priority || !description) {
                 alert('Пожалуйста, заполните все обязательные поля');
                 return;
             }
+
             // Показываем индикатор загрузки
             const submitBtn = document.getElementById('submit-request-btn');
             const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Создание...';
             submitBtn.disabled = true;
+
             fetch('/create_custom_request', {
                 method: 'POST',
                 headers: {
@@ -1029,6 +1080,7 @@
                 submitBtn.disabled = false;
             });
         }
+
         // Вспомогательные функции для текста статусов и типов
         function getStatusText(status) {
             const statusMap = {
@@ -1039,6 +1091,7 @@
             };
             return statusMap[status] || status;
         }
+
         function getTypeText(type) {
             const typeMap = {
                 'order': 'Заказ товаров',
@@ -1048,6 +1101,7 @@
             };
             return typeMap[type] || type;
         }
+
         function getPriorityText(priority) {
             const priorityMap = {
                 'low': 'Низкий',
