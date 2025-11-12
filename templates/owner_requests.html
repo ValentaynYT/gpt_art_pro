@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -333,6 +334,16 @@
             flex-wrap: wrap;
             justify-content: center;
         }
+
+        /* Новые стили для красивого заголовка */
+        .page-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00ff88;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -347,7 +358,7 @@
     </div>
 
     <div class="requests-container">
-        <h2>Заявки от заказчиков</h2>
+        <h1 class="page-title"> Заявки от заказчиков</h1>
 
         <!-- Статистика -->
         <div class="stats-panel">
@@ -709,3 +720,4 @@
     </script>
 </body>
 </html>
+```
