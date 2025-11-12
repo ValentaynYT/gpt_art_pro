@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="{{ url_for('static', filename='png/registericon.png') }}" rel="shortcut icon">
+    <title>Вход</title>
+</head>
+<body>
+    <div class="wrapper">
+        <form method="POST" action="{{ url_for('login') }}">
+            <h2>Вход</h2>
+
+            <!-- Поле для домена компании -->
+            <div class="input-field">
+                <input type="text" name="domain" required pattern="[a-zA-Z0-9-]+"
+                       title="Только латинские буквы, цифры и дефисы">
+                <label>Домен компании</label>
+            </div>
+
+            <div class="input-field">
+                <input type="email" name="email" required>
+                <label>Введите свой email</label>
+            </div>
+            <div class="input-field">
+                <input type="password" name="password" required>
+                <label>Введите свой пароль</label>
+            </div>
+
+            <!-- Выбор роли -->
+            <div class="input-field">
+                <select name="role" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: transparent; color: inherit;">
+                    <option value="" disabled selected>Выберите роль</option>
+                    <option value="owner">Владелец</option>
+                    <option value="worker">Рабочий</option>
+                    <option value="customer">Заказчик</option>
+                </select>
+            </div>
+
+            <div class="forget">
+                <label for="remember">
+                    <input type="checkbox" id="remember" name="remember">
+                    <p>Запомнить меня</p>
+                </label>
+            </div>
+            <button type="submit" class="submit">Войти</button>
+            <div class="register">
+                <p><a href="{{ url_for('register') }}">У вас нет аккаунта?</a></p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
