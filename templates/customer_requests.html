@@ -153,31 +153,7 @@
         .profile-modal a:last-child {
             border-bottom: none;
         }
-        .notification-badge {
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            padding: 3px 8px;
-            font-size: 12px;
-            margin-left: 8px;
-            font-weight: bold;
-            min-width: 20px;
-            height: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        .status-new { background: #00a8ff; box-shadow: 0 0 10px #00a8ff; }
-        .status-in-progress { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
-        .status-completed { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
-        .status-cancelled { background: #ff4757; box-shadow: 0 0 10px #ff4757; }
+        /* Убираем стили для бейджа уведомлений */
         .welcome-section {
             text-align: center;
             padding: 30px;
@@ -562,7 +538,6 @@
         <a href="{{ url_for('customer_search') }}"> Поиск товаров</a>
         <a href="{{ url_for('customer_requests') }}">
              Мои заявки
-            <span class="notification-badge" id="requests-badge">0</span>
         </a>
         <a href="{{ url_for('customer_dashboard') }}"> Главная</a>
         <button class="profile-button" id="profile-button">👤</button>
@@ -838,10 +813,7 @@
             document.getElementById('in-progress-requests').textContent = inProgressRequests;
             document.getElementById('completed-requests').textContent = completedRequests;
 
-            // Обновляем бейдж уведомлений
-            const badge = document.getElementById('requests-badge');
-            badge.textContent = newRequests + inProgressRequests;
-            badge.style.display = (newRequests + inProgressRequests) > 0 ? 'inline-flex' : 'none';
+            // УБИРАЕМ обновление бейджа уведомлений
         }
 
         // Отображение списка заявок
