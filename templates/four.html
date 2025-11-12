@@ -84,25 +84,23 @@
             position: absolute;
             right: 50px;
             top: 75px;
+            background-color: white;
+            color: black;
             width: 200px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             z-index: 100;
             overflow: hidden;
-            background-color: rgb(22, 23, 39);
         }
         .profile-modal a {
             display: block;
             padding: 10px 15px;
-            color: white;
+            color: black;
             text-decoration: none;
-            text-align: center;
-            background: linear-gradient(0deg, rgba(93, 113, 245, 1) 34%, rgba(76, 81, 255, 1) 78%);
-            transition: background 0.3s ease;
-            border-radius: 0; /* Без закруглённых краёв */
-            margin: 5px;
+            text-align: left;
         }
         .profile-modal a:hover {
-            background: linear-gradient(0deg, rgba(30, 60, 255, 1) 34%, rgba(31, 37, 255, 1) 78%);
+            background-color: #f0f0f0;
         }
         .container {
             width: 90%;
@@ -393,6 +391,7 @@
             </button>
         </div>
     </div>
+
     <script>
         let currentAction = null;
         let currentProduct = null;
@@ -401,6 +400,7 @@
         let selectedShelfId = null;
         let quaggaInitialized = false;
         let uploadedFileData = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             const profileButton = document.getElementById('profile-button');
             const profileModal = document.getElementById('profile-modal');
@@ -425,6 +425,7 @@
                 event.preventDefault();
                 window.location.href = "{{ url_for('all_shelves') }}";
             });
+
             document.getElementById('file-input').addEventListener('change', function(event) {
                 const file = event.target.files[0];
                 if (file) {
@@ -434,6 +435,7 @@
                 }
             });
         });
+
         function readQRCodeFromFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -457,6 +459,7 @@
             };
             reader.readAsDataURL(file);
         }
+
         function deleteFile() {
             document.getElementById('file-input').value = '';
             document.getElementById('file-name').textContent = 'Файл не выбран';
@@ -464,6 +467,7 @@
             document.getElementById('file-preview-container').style.display = 'none';
             uploadedFileData = null;
         }
+
         function checkCameraSupport() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 alert('Ваш браузер не поддерживает доступ к камере. Используйте Chrome, Firefox или Edge.');
@@ -471,22 +475,28 @@
             }
             return true;
         }
+
         async function startScanner(action, type = 'qr') {
             currentAction = action;
             scannerType = type;
+
             if (!checkCameraSupport()) return;
+
             document.getElementById('scanner-panel').style.display = 'flex';
             document.getElementById('confirm-btn').style.display = 'none';
             document.getElementById('scanner-product-info').innerHTML = '';
             document.getElementById('scanner-result').textContent =
                 type === 'qr' ? 'Наведите на QR-код...' : 'Наведите на штрих-код...';
+
             try {
                 if (quaggaInitialized && window.Quagga) {
                     window.Quagga.stop();
+                    quaggaInitialized = false;
                 }
                 if (videoStream) {
                     videoStream.getTracks().forEach(track => track.stop());
                 }
+
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'environment',
@@ -494,9 +504,11 @@
                         height: { ideal: 720 }
                     }
                 });
+
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 videoStream = stream;
+
                 await new Promise((resolve, reject) => {
                     video.onloadedmetadata = () => {
                         video.play()
@@ -507,6 +519,7 @@
                             });
                     };
                 });
+
                 if (type === 'qr') {
                     if (typeof jsQR === 'undefined') {
                         throw new Error('Библиотека jsQR не загружена.');
@@ -525,17 +538,20 @@
                 stopScanner();
             }
         }
+
         function scanQRFrame() {
             const video = document.getElementById('video');
             if (!videoStream || video.videoWidth === 0 || video.videoHeight === 0) {
                 requestAnimationFrame(scanQRFrame);
                 return;
             }
+
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
             try {
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const code = jsQR(imageData.data, canvas.width, canvas.height);
@@ -546,19 +562,23 @@
             } catch (e) {
                 console.error('Ошибка обработки QR-кода:', e);
             }
+
             requestAnimationFrame(scanQRFrame);
         }
+
         function initBarcodeScanner() {
             const video = document.getElementById('video');
             if (!videoStream || video.videoWidth === 0 || video.videoHeight === 0) {
                 setTimeout(initBarcodeScanner, 500);
                 return;
             }
+
             if (!Quagga) {
                 console.error("Quagga не загружена!");
                 document.getElementById('scanner-result').textContent = 'Ошибка: Quagga не загружена.';
                 return;
             }
+
             Quagga.init({
                 inputStream: {
                     name: "Live",
@@ -576,7 +596,12 @@
                         "code_128_reader", "code_39_reader",
                         "upc_reader", "codabar_reader"
                     ],
-                    debug: false
+                    debug: {
+                        drawBoundingBox: true,
+                        showFrequency: true,
+                        drawScanline: true,
+                        showPattern: true
+                    }
                 },
                 locate: true
             }, function(err) {
@@ -590,12 +615,18 @@
                 Quagga.start();
                 Quagga.onDetected(function(result) {
                     if (result && result.codeResult && result.codeResult.code) {
+                        document.getElementById('scanner-result').textContent = 'Найден штрих-код: ' + result.codeResult.code;
                         handleScannedData(result.codeResult.code);
                         Quagga.stop();
                     }
                 });
+                Quagga.onProcessed(function(result) {
+                    const drawingCtx = Quagga.canvas.ctx.overlay;
+                    const drawingCanvas = Quagga.canvas.dom.overlay;
+                });
             });
         }
+
         function handleScannedData(data) {
             try {
                 let productData;
@@ -618,6 +649,7 @@
                 resetScanner();
             }
         }
+
         function stopScanner() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
@@ -628,6 +660,7 @@
                 quaggaInitialized = false;
             }
         }
+
         function resetScanner() {
             document.getElementById('scanner-panel').style.display = 'none';
             document.getElementById('scanner-product-info').innerHTML = '';
@@ -637,6 +670,7 @@
             scannerType = null;
             stopScanner();
         }
+
         function handleUpload() {
             const result = document.getElementById('result');
             if (!uploadedFileData) {
@@ -644,8 +678,10 @@
                 result.style.color = 'var(--error)';
                 return;
             }
+
             result.textContent = 'Обработка QR-кода...';
             result.style.color = 'var(--success)';
+
             currentProduct = {
                 article: uploadedFileData.qr_content,
                 name: `Товар (QR: ${uploadedFileData.qr_content})`,
@@ -653,8 +689,10 @@
                 description: "",
                 qr_content: uploadedFileData.qr_content
             };
+
             showShelfModal();
         }
+
         function showProductInfo(elementId) {
             const infoElement = document.getElementById(elementId);
             infoElement.innerHTML = `
@@ -668,6 +706,7 @@
                 </p>
             `;
         }
+
         function showShelfModal() {
             const modal = document.getElementById('shelf-modal');
             modal.style.display = 'flex';
@@ -689,12 +728,14 @@
                 });
             });
         }
+
         function selectShelf(shelfId) {
             selectedShelfId = shelfId;
             const items = document.querySelectorAll('.shelf-item');
             items.forEach(item => item.style.background = 'rgba(255, 255, 255, 0.1)');
             event.target.style.background = 'rgba(0, 255, 136, 0.3)';
         }
+
         function confirmShelfSelection() {
             if (!selectedShelfId) {
                 alert('Выберите полку!');
@@ -733,6 +774,7 @@
                 alert('Произошла ошибка при сохранении товара');
             });
         }
+
         function handleConfirm() {
             showShelfModal();
         }

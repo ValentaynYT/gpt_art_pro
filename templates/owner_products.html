@@ -282,7 +282,7 @@
                     <tr>
                         <td>{{ product.id }}</td>
                         <td class="product-content">{{ product.qr_content }}</td>
-                        <td>{{ product.owner.email }}</td>
+                        <td>{{ product.owner.email if product.owner else 'Не указан' }}</td>
                         <td>
                             {% if product.shelf %}
                                 <span class="shelf-name">{{ product.shelf.name }}</span>

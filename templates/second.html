@@ -8,14 +8,13 @@
     <style>
         body {
             margin: 0;
-            background: rgb(39, 40, 43);
+            background: rgb(39,40,43);
             color: white;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         .top-menu {
             display: flex;
             justify-content: center;
@@ -26,14 +25,13 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
             position: relative;
         }
-
         .top-menu a {
             padding: 15px 30px;
             font-size: 20px;
             font-weight: bold;
             text-align: center;
             border-radius: 50px;
-            background: linear-gradient(0deg, rgba(93, 113, 245, 1) 34%, rgba(76, 81, 255, 1) 78%);
+            background: linear-gradient(0deg, rgba(93,113,245,1) 34%, rgba(76,81,255,1) 78%);
             color: white;
             text-decoration: none;
             cursor: pointer;
@@ -42,12 +40,10 @@
             align-items: center;
             justify-content: center;
         }
-
         .top-menu a:hover {
             transform: scale(1.1);
-            background: linear-gradient(0deg, rgba(30, 60, 255, 1) 34%, rgba(31, 37, 255, 1) 78%);
+            background: linear-gradient(0deg, rgba(30,60,255,1) 34%, rgba(31,37,255,1) 78%);
         }
-
         .profile-button {
             position: absolute;
             right: 50px;
@@ -65,47 +61,38 @@
             border-radius: 50%;
             background-color: rgba(93, 113, 245, 0.3);
         }
-
         .profile-button:hover {
             background-color: rgba(93, 113, 245, 0.6);
         }
-
         .profile-modal {
             display: none;
             position: absolute;
             right: 50px;
             top: 75px;
+            background-color: white;
+            color: black;
             width: 200px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             z-index: 100;
             overflow: hidden;
-            background-color: rgb(22, 23, 39);
         }
-
         .profile-modal a {
             display: block;
             padding: 10px 15px;
-            color: white;
+            color: black;
             text-decoration: none;
-            text-align: center;
-            background: linear-gradient(0deg, rgba(93, 113, 245, 1) 34%, rgba(76, 81, 255, 1) 78%);
-            transition: background 0.3s ease;
-            border-radius: 5px;
-            margin: 5px;
+            text-align: left;
         }
-
         .profile-modal a:hover {
-            background: linear-gradient(0deg, rgba(30, 60, 255, 1) 34%, rgba(31, 37, 255, 1) 78%);
+            background-color: #f0f0f0;
         }
-
         #controls {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin: 20px 0;
         }
-
         #controls button {
             padding: 20px 50px;
             font-size: 18px;
@@ -117,11 +104,9 @@
             border-radius: 7px;
             transition: background-color 0.3s;
         }
-
         #controls button:hover {
             background-color: #0056b3;
         }
-
         #shelves-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -134,7 +119,6 @@
             border-radius: 10px;
             margin-top: 120px;
         }
-
         .shelf {
             position: relative;
             width: 150px;
@@ -149,11 +133,9 @@
             user-select: none;
             transition: background-color 0.3s;
         }
-
         .shelf:hover {
             background-color: #0056b3;
         }
-
         .shelf .info-button {
             position: absolute;
             top: 5px;
@@ -164,7 +146,6 @@
             cursor: pointer;
             font-size: 14px;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -176,7 +157,6 @@
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.4);
         }
-
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
@@ -185,19 +165,16 @@
             width: 80%;
             border-radius: 10px;
         }
-
         .modal-content h2,
         .modal-content p {
             color: black;
         }
-
         .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
-
         .close:hover,
         .close:focus {
             color: black;
@@ -240,20 +217,20 @@
             const modalTitle = document.getElementById('shelf-title');
             const modalInfo = document.getElementById('shelf-info');
 
+            // Кнопка профиля
             const profileButton = document.getElementById('profile-button');
             const profileModal = document.getElementById('profile-modal');
-
             profileButton.addEventListener('click', function(event) {
                 event.stopPropagation();
                 profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
             });
-
             document.addEventListener('click', function(event) {
                 if (!profileButton.contains(event.target) && !profileModal.contains(event.target)) {
                     profileModal.style.display = 'none';
                 }
             });
 
+            // Загружаем полки с сервера
             function loadShelves() {
                 fetch("/get_shelves")
                 .then(response => response.json())
@@ -267,6 +244,7 @@
 
             loadShelves();
 
+            // Добавление новой полки
             addShelfButton.addEventListener('click', () => {
                 const shelfName = prompt("Введите название полки:");
                 if (shelfName) {
@@ -288,6 +266,7 @@
                 }
             });
 
+            // Удаление полки
             removeShelfButton.addEventListener('click', () => {
                 const shelfId = prompt("Введите ID полки для удаления:");
                 if (shelfId) {
@@ -305,6 +284,7 @@
                 }
             });
 
+            // Удаление всех полок
             removeAllShelvesButton.addEventListener('click', () => {
                 if (confirm("Удалить все полки?")) {
                     fetch("/remove_all_shelves", {
@@ -321,6 +301,7 @@
                 }
             });
 
+            // Закрытие модального окна
             modalClose.addEventListener('click', () => {
                 modal.style.display = 'none';
             });
@@ -331,6 +312,7 @@
                 }
             });
 
+            // Создание полки - ИСПРАВЛЕННАЯ ФУНКЦИЯ
             function createShelf(id, name) {
                 const shelf = document.createElement('div');
                 shelf.className = 'shelf';
@@ -362,16 +344,15 @@
                 shelvesContainer.appendChild(shelf);
             }
 
+            // Навигация
             document.getElementById('add-product').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('four') }}";
             });
-
             document.getElementById('home').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('second') }}";
             });
-
             document.getElementById('all-shelves').addEventListener('click', function(event) {
                 event.preventDefault();
                 window.location.href = "{{ url_for('all_shelves') }}";

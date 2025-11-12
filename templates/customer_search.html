@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Товары в наличии</title>
+    <title>Поиск товаров</title>
     <style>
         body {
             margin: 0;
@@ -41,7 +41,7 @@
         .top-menu a:hover {
             transform: scale(1.1);
         }
-        .product-list-container {
+        .search-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -53,6 +53,39 @@
             width: 90%;
             max-width: 1200px;
             margin-bottom: 40px;
+        }
+        .search-form {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .search-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(0deg, rgba(93,113,245,1) 34%, rgba(76,81,255,1) 78%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .search-button:hover {
+            transform: scale(1.05);
         }
         table {
             width: 100%;
@@ -76,7 +109,7 @@
         tr:hover {
             background: rgba(255, 255, 255, 0.1);
         }
-        .total-products {
+        .search-results {
             margin-top: 20px;
             font-size: 1.2em;
             font-weight: bold;
@@ -85,7 +118,7 @@
             background: rgba(0, 255, 136, 0.1);
             border-radius: 8px;
         }
-        .no-products {
+        .no-results {
             text-align: center;
             padding: 40px;
             color: rgba(255, 255, 255, 0.6);
@@ -191,47 +224,60 @@
             <a href="{{ url_for('logout') }}">Выйти</a>
         </div>
     </div>
-    <div class="product-list-container">
-        <h2>Товары в наличии</h2>
-        <div class="total-products">Общее количество товаров: {{ total_products }}</div>
-        {% if products %}
-        <table id="product-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Содержимое QR-кода</th>
-                    <th>Полка</th>
-                    <th>Пользователь</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
+    <div class="search-container">
+        <h2>Поиск товаров</h2>
+        <form class="search-form" method="GET" action="{{ url_for('customer_search') }}">
+            <input type="text" name="q" class="search-input" placeholder="Введите название товара, артикул или содержимое QR-кода..." value="{{ search_query }}">
+            <button type="submit" class="search-button">🔍 Найти товары</button>
+        </form>
+
+        {% if search_query %}
+            <div class="search-results">Найдено товаров: {{ total_found }}</div>
+
+            {% if products %}
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ product.id }}</td>
-                        <td class="product-content">{{ product.qr_content }}</td>
-                        <td>
-                            {% if product.shelf and product.shelf.name %}
-                                <span class="shelf-name">{{ product.shelf.name }}</span>
-                            {% else %}
-                                <span class="no-shelf">Не назначена</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="owner-info">{{ product.owner_email }}</span>
-                        </td>
-                        <td class="actions">
-                            <button class="action-button request" onclick="createRequest({{ product.id }})">📝 Подать заявку</button>
-                        </td>
+                        <th>ID</th>
+                        <th>Содержимое QR-кода</th>
+                        <th>Полка</th>
+                        <th>Владелец</th>
+                        <th>Действия</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td class="product-content">{{ product.qr_content }}</td>
+                            <td>
+                                {% if product.shelf_name %}
+                                    <span class="shelf-name">{{ product.shelf_name }}</span>
+                                {% else %}
+                                    <span class="no-shelf">Не назначена</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="owner-info">{{ product.owner_email }}</span>
+                            </td>
+                            <td class="actions">
+                                <button class="action-button request" onclick="createRequest({{ product.id }})">📝 Подать заявку</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-results">
+                <h3>Товары не найдены</h3>
+                <p>Попробуйте изменить поисковый запрос</p>
+            </div>
+            {% endif %}
         {% else %}
-        <div class="no-products">
-            <h3>Товаров пока нет</h3>
-            <p>В системе еще нет доступных товаров</p>
-        </div>
+            <div class="no-results">
+                <h3>Введите поисковый запрос</h3>
+                <p>Используйте поле выше для поиска товаров по содержимому QR-кода</p>
+            </div>
         {% endif %}
     </div>
 
