@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -251,6 +252,17 @@
         .modal-button:hover {
             opacity: 0.9;
         }
+
+        /* Новые стили для красивого заголовка */
+        .page-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #00ff88;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -264,7 +276,7 @@
         </div>
     </div>
     <div class="product-list-container">
-        <h2>Общий список товаров (Все пользователи)</h2>
+        <h1 class="page-title">📦 Общий список товаров</h1>
         <div class="total-products">Общее количество товаров: {{ total_products }}</div>
         {% if products %}
         <table id="product-table">
