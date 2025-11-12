@@ -75,7 +75,7 @@
             padding: 25px;
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255, 0.1);
             backdrop-filter: blur(10px);
         }
 
@@ -422,31 +422,31 @@
     <!-- Верхнее меню с навигацией -->
     <div class="top-menu">
         <a href="{{ url_for('customer_products') }}">
-            📦 Товары в наличии
+            Товары в наличии
         </a>
-        <a href="{{ url_for('customer_search') }}">🔍 Поиск товаров</a>
+        <a href="{{ url_for('customer_search') }}">Поиск товаров</a>
         <a href="{{ url_for('customer_requests') }}">
-            📋 Мои заявки
+            Мои заявки
             <span class="notification-badge" id="requests-badge">{{ user_requests_count }}</span>
         </a>
-        <a href="{{ url_for('customer_dashboard') }}">🏠 Главная</a>
+        <a href="{{ url_for('customer_dashboard') }}">Главная</a>
 
         <button class="profile-button" id="profile-button">👤</button>
         <div class="profile-modal" id="profile-modal">
-            <a href="{{ url_for('logout') }}" style="color: #ff4757;">🚪 Выйти</a>
+            <a href="{{ url_for('logout') }}" style="color: #ff4757;">Выйти</a>
         </div>
     </div>
 
     <div class="dashboard-container">
         <!-- Приветствие -->
         <div class="welcome-section">
-            <h1>Добро пожаловать! 👋</h1>
+            <h1>Добро пожаловать!</h1>
             <p id="current-date">Сегодня: Загрузка даты...</p>
         </div>
 
         <!-- Общая статистика -->
         <div class="dashboard-section">
-            <h2>📊 Общая статистика</h2>
+            <h2>Общая статистика</h2>
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-number">{{ total_products }}</div>
@@ -469,7 +469,7 @@
 
         <!-- Товары -->
         <div class="dashboard-section">
-            <h2>📦 Товары в наличии</h2>
+            <h2>Товары в наличии</h2>
             <p>Доступно для заказа: <strong>{{ total_products }}</strong> товаров</p>
             <p>Новых поступлений: <strong id="new-products">0</strong></p>
 
@@ -485,7 +485,7 @@
 
         <!-- Поиск -->
         <div class="dashboard-section">
-            <h2>🔍 Поиск товаров</h2>
+            <h2>Поиск товаров</h2>
             <p>Используйте систему поиска для быстрого нахождения нужных товаров</p>
 
             <!-- Быстрая форма поиска -->
@@ -501,16 +501,16 @@
 
         <!-- Быстрые действия -->
         <div class="dashboard-section">
-            <h2>⚡ Быстрые действия</h2>
+            <h2>Быстрые действия</h2>
             <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                 <button class="action-button secondary" onclick="window.location.href='{{ url_for('customer_products') }}'">
-                    📦 Все товары
+                    Все товары
                 </button>
                 <button class="action-button secondary" onclick="window.location.href='{{ url_for('customer_requests') }}'">
-                    📋 Мои заявки
+                    Мои заявки
                 </button>
                 <button class="action-button secondary" onclick="window.location.href='{{ url_for('customer_search') }}'">
-                    🔍 Поиск
+                    Поиск
                 </button>
             </div>
         </div>
@@ -619,7 +619,7 @@
                             }
                         </td>
                         <td>
-                            <button class="action-button" onclick="createRequest(${product.id})">📝 Заявка</button>
+                            <button class="action-button" onclick="createRequest(${product.id})">Заявка</button>
                         </td>
                     </tr>
                 `;
